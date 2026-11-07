@@ -1,0 +1,108 @@
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { font-family: "Ubuntu Sans", "Ubuntu", "DejaVu Sans", sans-serif; color: #2d2620; font-size: 11.5pt; line-height: 1.38; }
+svg text { font-family: "Ubuntu Sans", "Ubuntu", sans-serif; }
+
+.page { width: 210mm; height: 297mm; padding: 12mm 14mm 10mm; overflow: hidden; break-after: page; position: relative; }
+.page:last-child { break-after: auto; }
+
+h1, h2, h3 { font-family: "Ubuntu", sans-serif; color: #5a2f14; margin: 0; }
+h1 { font-size: 34pt; line-height: 1.05; text-align: center; }
+h2 { font-size: 20pt; margin-bottom: 3mm; display: flex; align-items: center; gap: 3mm; }
+h3 { font-size: 13pt; margin: 4mm 0 2mm; }
+p { margin: 0 0 2.5mm; }
+.small { font-size: 9.8pt; color: #4a4038; }
+.step { display: inline-flex; width: 11mm; height: 11mm; border-radius: 50%; background: #E8892B; color: #fff; align-items: center; justify-content: center; font-size: 16pt; }
+
+/* Titel */
+.cover { background: linear-gradient(#fbf4e8, #fff 60%); text-align: center; padding-top: 16mm; }
+.kicker { text-transform: uppercase; letter-spacing: .25em; color: #9C5A2C; font-size: 10pt; margin-bottom: 4mm; }
+.sub { font-size: 14pt; color: #7a5a40; margin-top: 3mm; }
+.badges { display: flex; gap: 5mm; justify-content: center; margin-top: 4mm; }
+.badges div { background: #fff; border: 2px solid #ecd9bf; border-radius: 4mm; padding: 3mm 5mm; font-size: 10.5pt; min-width: 45mm; }
+.badges b { display: block; color: #9C5A2C; font-size: 9pt; text-transform: uppercase; letter-spacing: .08em; }
+.stars { font-size: 16pt; color: #E8892B; }
+.foot { position: absolute; bottom: 10mm; left: 0; right: 0; font-size: 9pt; color: #9a8a7a; }
+
+/* Material & Tipps */
+.mat { margin: 2mm 0; padding-left: 5mm; }
+.mat li { margin-bottom: 1mm; }
+.tips { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; }
+.tip { background: #f4f8fd; border-radius: 3mm; padding: 2.5mm 3mm 2.5mm 11mm; position: relative; font-size: 10.3pt; }
+.tip > span { position: absolute; left: 3mm; top: 2.5mm; width: 6mm; height: 6mm; border-radius: 50%; background: #1F6FD6; color: #fff; text-align: center; font-weight: 700; font-size: 10pt; line-height: 6mm; }
+.warn { margin-top: 3mm; background: #fff1ec; border-left: 4px solid #E0442B; padding: 2.5mm 3mm; border-radius: 2mm; font-size: 10.3pt; }
+.legend { display: grid; grid-template-columns: auto 1fr auto 1fr; align-items: center; gap: 1.5mm 2mm; font-size: 10pt; }
+.legend svg { width: 9mm; height: auto; }
+.legend.small { grid-template-columns: auto 1fr auto 1fr auto 1fr; margin: 1mm 0 3mm; }
+.legend.small svg { width: 6.5mm; }
+
+/* Karten */
+.row2, .row3, .row4 { display: grid; gap: 3mm; }
+.row2 { grid-template-columns: 1fr 1fr; }
+.row3 { grid-template-columns: repeat(3, 1fr); }
+.row4 { grid-template-columns: repeat(4, 1fr); }
+.card { border: 2px solid #efe3d2; border-radius: 3.5mm; padding: 2mm; background: #fffdf9; break-inside: avoid; }
+.card .fig svg { width: 100%; height: auto; display: block; max-height: 40mm; }
+.masche .card .fig svg { max-height: 34mm; }
+.cap { font-size: 9.8pt; line-height: 1.3; padding: 1mm 1mm 0; }
+.num { display: inline-flex; min-width: 5.5mm; height: 5.5mm; border-radius: 3mm; background: #FFD84D; font-weight: 800; align-items: center; justify-content: center; margin-right: 1mm; font-size: 9.5pt; padding: 0 1mm; }
+.note { margin-top: 3mm; background: #fff8dc; border-radius: 3mm; padding: 3mm; text-align: center; font-size: 12pt; }
+.pill { display: inline-block; width: 5.5mm; height: 5.5mm; border-radius: 50%; color: #fff; text-align: center; line-height: 5.5mm; font-weight: 800; font-size: 11pt; vertical-align: middle; }
+.pill.plus { background: #3E9B4F; } .pill.minus { background: #E2832B; }
+
+table.nb { width: 100%; border-collapse: collapse; font-size: 10.5pt; }
+table.nb th, table.nb td { border: 1.5px solid #ead9c2; padding: 1.6mm 2mm; text-align: center; }
+table.nb td:first-child { text-align: left; }
+table.nb th { background: #fbf1e3; }
+
+/* Plan */
+.row-plan { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; align-items: start; }
+.row-plan svg { width: 100%; height: auto; }
+table.plan { width: 100%; border-collapse: collapse; font-size: 9.6pt; }
+table.plan th { background: #fbf1e3; font-size: 8.8pt; padding: 1.2mm; text-align: left; }
+table.plan td { border-top: 1.5px solid #f0e4d4; padding: 1mm 1.2mm; vertical-align: middle; }
+table.plan svg { display: block; height: auto; }
+.rn { font-weight: 800; font-size: 13pt; color: #9C5A2C; text-align: center; width: 9mm; }
+.area { color: #8a7a6a; font-size: 8.8pt; width: 12mm; }
+.cnt { text-align: center; width: 13mm; }
+.box { font-size: 15pt; text-align: center; width: 8mm; }
+.hint { font-size: 8.6pt; color: #6a5a4a; margin-top: -.5mm; }
+
+/* Kleinteile */
+.parts { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 2mm; }
+.part { border: 2px solid #efe3d2; border-radius: 4mm; padding: 2mm 4mm 2mm; background: #fffdf9; }
+.part h3 { margin-top: 1mm; }
+.part svg { display: block; margin: 0 auto; max-height: 52mm; width: auto; max-width: 100%; }
+.part .two { display: flex; justify-content: space-around; align-items: end; }
+.part .two svg { max-height: 50mm; }
+.part ol { margin: 1mm 0 0; padding-left: 5mm; font-size: 10pt; }
+.part li { margin-bottom: .8mm; }
+.times { background: #6B3A1F; color: #fff; border-radius: 2mm; padding: 0 2mm; font-size: 10pt; vertical-align: middle; }
+
+ol.assembly { padding-left: 0; list-style: none; counter-reset: a; margin: 2mm 0; font-size: 10.4pt; }
+ol.assembly li { counter-increment: a; position: relative; padding-left: 10mm; margin-bottom: 1.8mm; }
+ol.assembly li::before { content: counter(a); position: absolute; left: 0; top: -.3mm; width: 6.5mm; height: 6.5mm; border-radius: 50%; background: #FFD84D; border: 1.5px solid #333; text-align: center; font-weight: 800; line-height: 6.5mm; font-size: 10pt; }
+
+/* Hilfe + Urkunde */
+.faq { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; font-size: 10.2pt; }
+.faq div { background: #f7f3ee; border-radius: 3mm; padding: 3mm; }
+.cert { margin-top: 6mm; border: 3px dashed #E8892B; border-radius: 6mm; padding: 5mm 12mm; text-align: center; }
+.cert-title { font-family: "Ubuntu", sans-serif; font-size: 24pt; font-weight: 700; color: #5a2f14; margin-bottom: 2mm; }
+.cert p { text-align: left; font-size: 12.5pt; margin: 4mm 0; }
+.line { display: inline-block; width: 100mm; border-bottom: 1.5px solid #555; margin-left: 2mm; }
+
+.hollow { display: grid; grid-template-columns: 24mm 1fr; gap: 3mm; align-items: center; background: #f3f8f1; border-radius: 3mm; padding: 1.5mm 3mm; margin: 2mm 0; }
+.hollow svg { width: 24mm; height: auto; }
+.hollow p { margin: 0; }
+.p5 { font-size: 12pt; }
+.p5 .hollow { grid-template-columns: 42mm 1fr; padding: 3mm 5mm; }
+.p5 .hollow svg { width: 42mm; }
+.p5 .hollow p { font-size: 11.5pt; }
+.p5 .legend.small svg { width: 7.5mm; }
+.p5 .legend.small { font-size: 11pt; }
+.bigprofile svg { width: 150mm; display: block; margin: 0 auto; }
+.frisur { display: grid; grid-template-columns: 1.15fr 1fr; gap: 3mm; margin: 2mm 0; }
+.frisur .card.big .fig svg { max-height: 105mm; }
+.frisur .stack { display: grid; gap: 3mm; }
+.frisur .stack .fig svg { max-height: 36mm; }

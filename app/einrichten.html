@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hochlandrind – Einrichten</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  body { margin: 0; background: #fbf6ee; color: #2d2620; font-family: "Ubuntu Sans", "Ubuntu", system-ui, sans-serif; line-height: 1.45; }
+  main { max-width: 560px; margin: 0 auto; padding: 18px 16px 40px; }
+  h1 { color: #5a2f14; font-size: 24px; margin: 0 0 6px; }
+  p.lead { color: #7a6a5a; margin: 0 0 16px; }
+  ol { padding: 0; margin: 0; list-style: none; counter-reset: s; display: grid; gap: 12px; }
+  li { counter-increment: s; background: #fffdf9; border: 2px solid #efe3d2; border-radius: 14px; padding: 12px 14px 12px 54px; position: relative; }
+  li::before { content: counter(s); position: absolute; left: 12px; top: 12px; width: 30px; height: 30px; border-radius: 50%; background: #FFD84D; font-weight: 800; display: grid; place-items: center; }
+  li b.t { display: block; font-size: 17px; margin-bottom: 4px; }
+  a.btn { display: inline-block; margin-top: 8px; background: #5a2f14; color: #fff; text-decoration: none; padding: 10px 16px; border-radius: 10px; font-weight: 700; }
+  .path { background: #f4f8fd; border-radius: 8px; padding: 6px 8px; font-size: 14px; }
+  .small { font-size: 13px; color: #7a6a5a; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Hochlandrind-App aufs Handy holen</h1>
+  <p class="lead">Einmal einrichten – danach läuft die App auch ohne WLAN und ohne Computer.</p>
+  <ol>
+    <li><b class="t">Zertifikat herunterladen</b>
+      Damit dein Handy dem Computer vertraut.<br>
+      <a class="btn" href="/hochlandrind-ca.crt">Zertifikat laden</a>
+    </li>
+    <li><b class="t">Zertifikat installieren</b>
+      Öffne die <b>Einstellungen</b> und suche nach <b>„Zertifikat“</b>. Meist heißt der Weg:
+      <div class="path">Sicherheit und Datenschutz → Weitere Sicherheitseinstellungen → Verschlüsselung und Anmeldedaten → Zertifikat installieren → <b>CA-Zertifikat</b></div>
+      Bestätige mit „Trotzdem installieren“ und wähle die Datei <b>hochlandrind-ca.crt</b> aus dem Download-Ordner.
+      <p class="small">Das Zertifikat gilt nur für deine Hochlandrind-App. Du kannst es später an derselben Stelle wieder löschen.</p>
+    </li>
+    <li><b class="t">App öffnen</b>
+      <a class="btn" id="open" href="#">App öffnen (sicher)</a>
+      <p class="small">Kommt eine Warnung, ist das Zertifikat noch nicht installiert – zurück zu Schritt 2.</p>
+    </li>
+    <li><b class="t">App installieren</b>
+      In Chrome oben rechts auf <b>⋮</b> tippen → <b>„App installieren“</b> (oder „Zum Startbildschirm hinzufügen“).
+      Danach findest du das Hochlandrind auf dem Startbildschirm – es funktioniert jetzt auch offline.
+    </li>
+  </ol>
+</main>
+<script>
+  fetch('/info.json').then(r => r.json()).then(info => {
+    const url = info.httpsUrls.find(u => u.includes(location.hostname)) || info.httpsUrls[0];
+    if (url) document.getElementById('open').href = url;
+  }).catch(() => {});
+</script>
+</body>
+</html>

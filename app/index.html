@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hochlandrind – Runde für Runde</title>
+<meta name="theme-color" content="#5a2f14">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script src="qrcode.js"></script>
+<style>
+:root {
+  --bg: #fbf6ee; --card: #fffdf9; --line: #efe3d2; --ink: #2d2620; --soft: #7a6a5a; --brown: #5a2f14;
+  --H: #C98B4F; --blue: #1F6FD6; --red: #E0442B; --plus: #3E9B4F; --minus: #E2832B; --old: #BDB4AA; --glow: #FFE36E; --yellow: #FFD84D;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Ubuntu Sans", "Ubuntu", "DejaVu Sans", system-ui, sans-serif; }
+header { padding: 14px 20px 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+h1 { margin: 0; font-family: "Ubuntu", sans-serif; color: var(--brown); font-size: 26px; }
+header p { margin: 0; color: var(--soft); flex: 1 1 300px; }
+.phone { font: inherit; font-size: 15px; border: 2px solid var(--line); background: #fff; border-radius: 10px; padding: 6px 12px; cursor: pointer; }
+.phone:hover { background: #f6ecdf; }
+.offline { font-size: 13px; color: var(--plus); font-weight: 700; }
+dialog { border: 0; border-radius: 16px; padding: 20px 24px; max-width: min(420px, 92vw); text-align: center; color: var(--ink); }
+dialog::backdrop { background: rgba(45, 38, 32, .45); }
+dialog h2 { justify-content: center; }
+#qrBox svg { width: 260px; max-width: 100%; height: auto; display: block; margin: 8px auto; }
+#qrUrl { font-family: ui-monospace, monospace; font-size: 16px; word-break: break-all; }
+dialog .small { font-size: 13px; color: var(--soft); }
+dialog button { font: inherit; margin-top: 10px; padding: 8px 18px; border-radius: 10px; border: 0; background: var(--brown); color: #fff; cursor: pointer; }
+main { display: grid; grid-template-columns: 190px minmax(0, 1fr) 380px; gap: 16px; padding: 14px 20px 20px; align-items: start; }
+.card { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 12px; }
+h2 { margin: 0 0 8px; font-family: "Ubuntu", sans-serif; color: var(--brown); font-size: 20px; }
+h3 { margin: 12px 0 6px; font-size: 15px; color: var(--brown); }
+
+/* Runden-Liste */
+.rounds { display: flex; flex-direction: column-reverse; gap: 3px; }
+.rounds button { all: unset; cursor: pointer; display: grid; grid-template-columns: 34px 1fr 26px; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 8px; font-size: 13px; }
+.rounds button:hover { background: #f6ecdf; }
+.rounds button:focus-visible { outline: 2px solid var(--blue); }
+.rounds button.on { background: var(--yellow); font-weight: 700; }
+.rounds .bar { height: 12px; border-radius: 6px; justify-self: center; }
+.rounds .area-Körper .bar { background: var(--H); }
+.rounds .area-Hals .bar { background: #9C5A2C; }
+.rounds .area-Kopf .bar { background: #6B3A1F; }
+.rounds .cnt { text-align: right; color: var(--soft); }
+.areas { font-size: 12px; color: var(--soft); margin-top: 8px; line-height: 1.6; }
+.areas i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
+
+/* Bühne */
+.stage { position: relative; }
+#svg { width: 100%; height: auto; max-height: calc(100vh - 210px); display: block; margin: 0 auto; aspect-ratio: 1; }
+.controls { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.controls button { font: inherit; font-size: 18px; min-width: 48px; height: 44px; border-radius: 10px; border: 2px solid var(--line); background: #fff; cursor: pointer; padding: 0 12px; }
+.controls button:hover { background: #f6ecdf; }
+.controls button:focus-visible { outline: 3px solid var(--blue); }
+.controls button.play { background: var(--brown); color: #fff; border-color: var(--brown); min-width: 120px; }
+.controls label { font-size: 14px; color: var(--soft); display: flex; align-items: center; gap: 6px; }
+.keys { text-align: center; font-size: 12px; color: var(--soft); margin-top: 6px; }
+
+/* Info */
+.counts { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 8px; }
+.counts span { background: #f6ecdf; border-radius: 8px; padding: 4px 8px; font-size: 14px; }
+.counts b { color: var(--brown); }
+.seq { display: flex; flex-wrap: wrap; gap: 4px; }
+.seq span { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; border: 2px solid transparent; }
+.seq .n { background: var(--H); color: #3a2a1a; }
+.seq .p { background: var(--plus); color: #fff; }
+.seq .m { background: var(--minus); color: #fff; }
+.seq .now { border-color: var(--ink); transform: scale(1.18); }
+.seq .done { opacity: .45; }
+.hint { background: #fff8dc; border-radius: 10px; padding: 8px 10px; font-size: 14px; margin-top: 10px; }
+.now-step { background: #f4f8fd; border-radius: 12px; padding: 10px 12px; margin-top: 10px; min-height: 96px; }
+.now-step .t { font-size: 13px; color: var(--soft); text-transform: uppercase; letter-spacing: .06em; }
+.now-step .x { font-size: 19px; line-height: 1.35; margin-top: 4px; }
+.x .b { color: var(--blue); font-weight: 700; } .x .r { color: var(--red); font-weight: 700; }
+.dot { display: inline-block; width: 15px; height: 15px; border-radius: 50%; vertical-align: -2px; margin-right: 3px; border: 1.5px solid rgba(0,0,0,.35); }
+.cols { display: block; margin-top: 6px; font-size: 17px; }
+ol.steps { position: relative; margin: 0; padding: 0 0 0 26px; max-height: 300px; overflow: auto; font-size: 13.5px; }
+ol.steps li { padding: 3px 4px; border-radius: 6px; cursor: pointer; }
+ol.steps li:hover { background: #f6ecdf; }
+ol.steps li.on { background: var(--yellow); font-weight: 700; }
+ol.steps li.done { color: var(--soft); }
+.legend { display: grid; grid-template-columns: 22px 1fr 22px 1fr; gap: 6px 6px; align-items: center; font-size: 13px; }
+.legend svg { width: 22px; height: 22px; }
+
+@media (max-width: 1150px) {
+  main { grid-template-columns: 1fr; }
+  .rounds { flex-direction: row; flex-wrap: wrap; }
+  .areas { display: none; }
+  .rounds button { grid-template-columns: auto; }
+  .rounds .bar, .rounds .cnt { display: none; }
+  #svg { max-height: 70vh; }
+}
+@media (max-width: 600px) {
+  header { padding: 10px 12px 0; gap: 8px; }
+  h1 { font-size: 21px; }
+  header p { font-size: 13px; }
+  main { padding: 10px 12px 16px; gap: 10px; }
+  .card { padding: 10px; }
+  .keys { display: none; }
+  #bPhone { display: none; }
+  .controls button { min-width: 44px; padding: 0 10px; }
+  .controls button.play { min-width: 100px; }
+  .now-step .x { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Hochlandrind · Runde für Runde</h1>
+  <button class="phone" id="bPhone">📱 Auf dem Handy öffnen</button>
+  <button class="phone" id="bInstall" hidden>📲 App installieren</button>
+  <span class="offline" id="offline" hidden>✓ offline bereit</span>
+  <p>Körper, Hals und Kopf – von oben gesehen. Blasse Perlen = alte Runde, gelb leuchtend = gerade neu. Fell: hell-, mittel- und dunkelbraun gemischt.</p>
+</header>
+<dialog id="qrDlg">
+  <h2>Mit dem Handy öffnen</h2>
+  <div id="qrBox"></div>
+  <div id="qrUrl"></div>
+  <p class="small">Handy und Computer müssen im selben WLAN sein. Kamera-App öffnen und den Code scannen. Die Seite dort erklärt, wie die App aufs Handy kommt und offline läuft.</p>
+  <button id="qrClose">Schließen</button>
+</dialog>
+<main>
+  <nav class="card" aria-label="Runden">
+    <h2>Runden</h2>
+    <div class="rounds" id="rounds"></div>
+    <div class="areas"><i style="background:var(--H)"></i>Körper<br><i style="background:#9C5A2C"></i>Hals<br><i style="background:#6B3A1F"></i>Kopf<br>Unten fängst du an, oben hörst du auf.</div>
+  </nav>
+
+  <section class="card stage">
+    <svg id="svg" viewBox="-400 -400 800 800" role="img" aria-label="Perlen von oben">
+      <defs>
+        <marker id="ah-b" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1F6FD6"/></marker>
+        <marker id="ah-r" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E0442B"/></marker>
+      </defs>
+      <g id="scene"></g>
+    </svg>
+    <div class="controls">
+      <button id="bRoundPrev" title="Vorige Runde (Bild ↑)">⏮</button>
+      <button id="bPrev" title="Schritt zurück (←)">◀</button>
+      <button id="bPlay" class="play" title="Abspielen / Pause (Leertaste)">▶ Abspielen</button>
+      <button id="bNext" title="Nächster Schritt (→)">▶|</button>
+      <button id="bRoundNext" title="Nächste Runde (Bild ↓)">⏭</button>
+      <label>Tempo
+        <select id="speed">
+          <option value="0.5">langsam</option>
+          <option value="1" selected>normal</option>
+          <option value="2">schnell</option>
+        </select>
+      </label>
+    </div>
+    <div class="keys">Tasten: Leertaste = Abspielen/Pause · → nächster Schritt · ← zurück · Bild ↑/↓ = Runde wechseln</div>
+  </section>
+
+  <aside class="card">
+    <h2 id="title">Runde 1</h2>
+    <div class="counts" id="counts"></div>
+    <div class="seq" id="seq"></div>
+    <div class="hint" id="hint" hidden></div>
+    <div class="now-step"><div class="t" id="stepT"></div><div class="x" id="stepX"></div></div>
+    <h3>Alle Schritte dieser Runde</h3>
+    <ol class="steps" id="steps"></ol>
+    <h3>Zeichen</h3>
+    <div class="legend" id="legend"></div>
+  </aside>
+</main>
+
+<script>
+'use strict';
+// ---------- Runden-Plan (wie in der Anleitung, build_hochlandrind.py) ----------
+const PLAN = [
+  [2, 'Körper', 'ppppp', 10, 'Jede Masche ist eine Plus-Masche.'],
+  [3, 'Körper', 'npnpnpnpnp', 15, 'Binde an Masche 1, 4, 6 und 9 einen Wollfaden: Hier kommen später die Beine hin.'],
+  [4, 'Körper', 'nnp'.repeat(5), 20, 'Jetzt ist der Bauch schon richtig breit.'],
+  [5, 'Körper', 'n'.repeat(20), 20, 'Ab jetzt wächst der Rand nach oben. Merke dir Masche 15 – hier kommt später der Schwanz hin.'],
+  [6, 'Körper', 'n'.repeat(20), 20, ''],
+  [7, 'Hals', 'nnm'.repeat(5), 15, 'Jetzt wird es schmaler.'],
+  [8, 'Hals', 'nnnm'.repeat(3), 12, 'Der Hals ist am schmalsten.'],
+  [9, 'Kopf', 'nnpnnnnnpnnn', 14, ''],
+  [10, 'Kopf', 'nnnpnnnnnnpnnn', 16, ''],
+  [11, 'Kopf', 'nnnpnnnnnnnpnnnn', 18, ''],
+  [12, 'Kopf', 'nnnnpnnnnnnnnpnnnn', 20, 'Der Kopf ist jetzt am breitesten.'],
+  [13, 'Kopf', 'nnm'.repeat(5), 15, ''],
+  [14, 'Kopf', 'nm'.repeat(5), 10, ''],
+  [15, 'Kopf', 'nmmnmm', 6, 'Das ist die Öffnung oben. Schnur NICHT abschneiden!'],
+];
+const COL = { b: '#1F6FD6', r: '#E0442B' };
+const NAME = { b: 'Blau', r: 'Rot' };
+const H = '#C98B4F', MB = '#9C5A2C', D = '#6B3A1F', OLD = '#BDB4AA', GLOW = '#FFE36E', PLUS = '#3E9B4F', MINUS = '#E2832B';
+const BR = 30;   // Perlen-Radius in SVG-Einheiten
+
+const pt = (r, a) => [r * Math.cos(a * Math.PI / 180), r * Math.sin(a * Math.PI / 180)];
+const lerp = (a, b, t) => a + (b - a) * t;
+const lp = (p, q, t) => [lerp(p[0], q[0], t), lerp(p[1], q[1], t)];
+const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+const nm = (c) => `<span class="${c}">${NAME[c]}</span>`;
+const plural = (n, one, many) => n === 1 ? one : many;
+const cname = c => c === H ? 'hell' : c === MB ? 'mittel' : 'dunkel';
+const dots = cols => '<span class="cols">Farben: ' + cols.map(c => `<i class="dot" style="background:${c}"></i>${cname(c)}`).join(' · ') + '</span>';
+// Feste Zufallsfolge: jedes Mal dieselben Farben, damit man nachfädeln kann.
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ---------- Geometrie einer Runde von oben ----------
+// Innen liegen die alten Perlen (obere Perlen der Runde davor), außen die neuen oberen Perlen,
+// dazwischen an jeder Ecke eine Seitenperle.
+function ring(P, seq) {
+  const Ri = Math.max(125, P * 84 / (2 * Math.PI));
+  const RiC = Ri + 26, Rs = Ri + 92, Rt = Ri + 172, RoC = Rt + 20, a0 = 90, st = 360 / P;
+  const M = seq.length;
+  const kold = [...seq].map(c => c === 'm' ? 2 : 1), ktop = [...seq].map(c => c === 'p' ? 2 : 1);
+  const ca = [a0];
+  kold.forEach((k, j) => ca.push(ca[j] + k * st));
+  const oldStart = []; let c = 0;
+  kold.forEach(k => { oldStart.push(c); c += k; });
+  const g = {
+    P, M, seq, Ri, RiC, Rs, Rt, RoC, ca, kold, ktop, oldStart,
+    old: Array.from({ length: P }, (_, i) => pt(Ri, a0 + (i + .5) * st)),
+    I: j => pt(RiC, ca[j % M]), S: j => pt(Rs, ca[j % M]), O: j => pt(RoC, ca[j % M]),
+    tops: ktop.map((k, j) => Array.from({ length: k }, (_, i) => pt(Rt, ca[j] + (i + 1) * (ca[j + 1] - ca[j]) / (k + 1)))),
+    mid: j => (ca[j] + ca[j + 1]) / 2,
+    W: RoC + 95,
+  };
+  return g;
+}
+
+function mkMove(c, pts, nw, extra) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const len = cum[cum.length - 1];
+  return Object.assign({ kind: 'move', c, pts, nw, cum, len, dur: 0.9 + len / 330 }, extra);
+}
+
+// ---------- Alle Runden mit allen Schritten bauen ----------
+const ROUNDS = [];
+(function build() {
+  let prev = 5;
+  ROUNDS.push({ r: 1, area: 'Körper', seq: '', prev: 0, after: 5, hint: 'Der Startkreis ist Runde 1. Schneide 2 m Schnur ab.' });
+  for (const [r, area, seq, after, hint] of PLAN) { ROUNDS.push({ r, area, seq, prev, after, hint }); prev = after; }
+
+  let picker = 'r', other = 'b';
+  const rnd = mulberry32(7), pick = () => { const x = rnd(); return x < 0.4 ? H : x < 0.75 ? MB : D; };
+  let oldCols = Array(5).fill(H);
+  for (const R of ROUNDS) {
+    if (R.r === 1) {
+      const g = ring(5, 'nnnnn');
+      R.g = g; R.W = Math.max(g.W, 470);
+      const K = g.I(0);
+      R.steps = [
+        { kind: 'r1', sub: 0, dur: 3.2, title: 'Auffädeln', text: `Fädle <b>5 hellbraune Perlen</b> auf und schiebe sie genau in die <b>Mitte</b> der Schnur. Das linke Ende ist ${nm('b')}, das rechte ${nm('r')}.` },
+        { kind: 'r1', sub: 1, dur: 2.2, title: 'Kreis legen', text: 'Zieh beide Enden zusammen, sodass ein <b>Kreis</b> entsteht.' },
+        { kind: 'r1', sub: 2, dur: 1.2, title: 'Knoten', text: 'Mache <b>2 feste Knoten</b>.' },
+        mkMove('b', [K, g.old[0], g.I(1)], [], { title: 'Bereit machen', text: `${nm('b')} geht durch <b>Perle 1</b>. Jetzt liegen die Enden links und rechts von Perle 1.`, oldHi: [0] }),
+      ];
+      picker = 'r'; other = 'b';
+      continue;
+    }
+    const g = ring(R.prev, R.seq), M = g.M, last = M - 1;
+    R.g = g; R.W = g.W; R.steps = []; R.oldCols = oldCols;
+    const topCol = g.tops.map(t => t.map(pick)), sideCol = Array.from({ length: M }, pick);
+    const S = R.steps;
+    const lowerPts = j => {
+      const a = [g.I(j)];
+      for (let i = 0; i < g.kold[j]; i++) a.push(g.old[g.oldStart[j] + i]);
+      a.push(g.I(j + 1)); return a;
+    };
+    const oldIdx = j => Array.from({ length: g.kold[j] }, (_, i) => g.oldStart[j] + i);
+    const typ = j => R.seq[j] === 'p' ? ' (Plus)' : R.seq[j] === 'm' ? ' (Minus)' : '';
+    // Masche 1: drei (oder vier) neue Perlen auf einmal
+    {
+      const kt = g.ktop[0], pts = [g.I(0), g.S(0), g.O(0), ...g.tops[0], g.O(1), g.S(1), g.I(1)];
+      const nw = [1, ...g.tops[0].map((_, i) => 3 + i), pts.length - 2];
+      const nwCol = [sideCol[0], ...topCol[0], sideCol[1 % M]];
+      S.push(mkMove(picker, pts, nw, { masche: 0, nwCol, title: `Masche 1${typ(0)} · erste Masche`,
+        text: `${nm(picker)} nimmt <b>${kt + 2} neue Perlen</b> auf: Seite, ${kt === 2 ? '2× oben' : 'oben'}, Seite.${kt === 2 ? ' <b>Plus-Masche:</b> oben liegen 2 Perlen.' : ''}` + dots(nwCol) }));
+      S.push(mkMove(other, [g.I(1), g.S(1), g.O(1)], [], { masche: 0, title: 'Masche 1 · kreuzen',
+        text: `${nm(other)} geht <b>von unten</b> durch die letzte neue Perle. Festziehen!` }));
+    }
+    let inner = picker, outer = other;
+    for (let j = 1; j < M; j++) {
+      const kt = g.ktop[j], ko = g.kold[j], isLast = j === last;
+      S.push(mkMove(inner, lowerPts(j), [], { masche: j, oldHi: oldIdx(j), title: `Masche ${j + 1}${typ(j)} · unten`,
+        text: ko === 2 ? `<b>Minus-Masche!</b> ${nm(inner)} geht unten durch <b>2 alte Perlen</b> auf einmal.` : `${nm(inner)} geht unten durch die <b>nächste alte Perle</b>.` }));
+      if (!isLast) {
+        const pts = [g.O(j), ...g.tops[j], g.O(j + 1), g.S(j + 1), g.I(j + 1)];
+        const nw = [...g.tops[j].map((_, i) => 1 + i), pts.length - 2];
+        const nwCol = [...topCol[j], sideCol[j + 1]];
+        S.push(mkMove(outer, pts, nw, { masche: j, nwCol, title: `Masche ${j + 1}${typ(j)} · oben`,
+          text: `${nm(outer)} nimmt oben <b>${kt + 1} neue Perlen</b> auf.${kt === 2 ? ' <b>Plus-Masche:</b> 1 Perle mehr!' : ''}` + dots(nwCol) }));
+        S.push(mkMove(inner, [g.I(j + 1), g.S(j + 1), g.O(j + 1)], [], { masche: j, title: `Masche ${j + 1} · kreuzen`,
+          text: `${nm(inner)} kreuzt <b>von unten</b> durch die letzte neue Perle. Festziehen!` }));
+      } else {
+        const pts = [g.O(j), ...g.tops[j], g.O(0), g.S(0), g.I(0)];
+        const nw = g.tops[j].map((_, i) => 1 + i);
+        const nwCol = [...topCol[j]];
+        S.push(mkMove(outer, pts, nw, { masche: j, nwCol, hiS0: true, title: `Masche ${j + 1}${typ(j)} · letzte Masche`,
+          text: `${nm(outer)} nimmt nur <b>${kt} neue ${plural(kt, 'Perle', 'Perlen')}</b> und geht dann durch die <b>allererste Seitenperle</b> der Runde.` + dots(nwCol) }));
+        S.push(mkMove(inner, [g.I(0), g.S(0), g.O(0)], [], { masche: j, hiS0: true, title: 'Runde schließen',
+          text: `${nm(inner)} kreuzt <b>auch durch die erste Seitenperle</b>. Festziehen – die Runde ist zu!` }));
+      }
+      const was = inner; inner = outer; outer = was;
+    }
+    // Jetzt: inner liegt innen an Ecke 0, outer außen an Ecke 0.
+    if (R.r < 15) {
+      const pts = [g.I(0), g.old[0], g.I(1), g.S(1), g.O(1)];
+      let extra = '';
+      if (g.ktop[0] === 2) {
+        pts.push(g.tops[0][1], pt(g.RoC, g.mid(0)));
+        extra = ` Weil Masche 1 eine Plus-Masche war, geht ${nm(inner)} danach noch <b>zurück durch die 2. obere Perle</b> von Masche 1.`;
+      }
+      S.push(mkMove(inner, pts, [], { oldHi: [0], title: 'Hochsteigen',
+        text: `${nm(inner)} geht durch die <b>erste alte Perle</b> und die <b>Seitenperle daneben</b> nach oben.${extra} Jetzt liegen beide Enden links und rechts von Perle 1 der neuen Runde.` }));
+      picker = outer; other = inner;
+    } else {
+      S.push({ kind: 'done', dur: 1.5, title: 'Fertig!',
+        text: '<b>Körper, Hals und Kopf sind fertig!</b> Schneide die Schnur <b>nicht</b> ab: Damit machst du nach dem Füllen das Loch oben zu.' });
+    }
+    const all = S.flatMap(st => st.nwCol || []);
+    R.hell = all.filter(c => c === H).length; R.mittel = all.filter(c => c === MB).length; R.dunkel = all.filter(c => c === D).length;
+    oldCols = topCol.flat();
+    // Kontrolle: neue Perlen wie in der Tabelle der Anleitung
+    R.newCount = S.reduce((n, s) => n + (s.nw ? s.nw.length : 0), 0);
+    const expect = [...R.seq].reduce((n, c, i) => n + (i === 0 ? 3 : i === last ? 1 : 2) + (c === 'p' ? 1 : 0), 0);
+    console.assert(R.newCount === expect, 'Runde', R.r, R.newCount, expect);
+  }
+  ROUNDS[0].newCount = 5; ROUNDS[0].hell = 5; ROUNDS[0].mittel = 0; ROUNDS[0].dunkel = 0;
+})();
+
+// ---------- Zeichnen ----------
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(v * f));
+  return '#' + c.map(v => v.toString(16).padStart(2, '0')).join('');
+}
+function bead(x, y, fill, o = {}) {
+  const r = BR * (o.scale ?? 1);
+  if (r <= 0.5) return '';
+  let s = '';
+  if (o.glow) s += `<circle cx="${x}" cy="${y}" r="${r + 14}" fill="${GLOW}" opacity="${o.glow * .8}"/>`;
+  s += `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${shade(fill, .62)}" stroke-width="3"/>`;
+  if (o.faded) s += `<circle cx="${x}" cy="${y}" r="${r + 1.5}" fill="#fffdf9" opacity=".5"/>`;
+  s += `<circle cx="${x - r * .35}" cy="${y - r * .38}" r="${r * .3}" fill="#fff" opacity=".5"/>`;
+  if (o.num != null) s += `<text x="${x}" y="${y + r * .36}" text-anchor="middle" font-size="${r * 1.0}" font-weight="700" fill="#3a2a1a">${o.num}</text>`;
+  return s;
+}
+function poly(pts) { return 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' L'); }
+function partial(m, p) {
+  const L = m.len * p, out = [m.pts[0]];
+  for (let i = 1; i < m.pts.length; i++) {
+    if (m.cum[i] <= L) { out.push(m.pts[i]); continue; }
+    const f = (L - m.cum[i - 1]) / (m.cum[i] - m.cum[i - 1]);
+    out.push(lp(m.pts[i - 1], m.pts[i], f)); break;
+  }
+  return out;
+}
+function threadPath(pts, c, op, arrow) {
+  return `<path d="${poly(pts)}" fill="none" stroke="${COL[c]}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="${op}"${arrow ? ` marker-end="url(#ah-${c})"` : ''}/>`;
+}
+const ring2 = (p, r, op = 1) => `<circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="none" stroke="#F5B400" stroke-width="6" stroke-dasharray="12 9" opacity="${op}"/>`;
+
+function drawRound1(R, s, p) {
+  const g = R.g, K = g.I(0);
+  const sub = R.steps[s].kind === 'r1' ? R.steps[s].sub : 3;
+  const m = sub === 0 ? 0 : sub === 1 ? ease(p) : 1;
+  const line = k => [(k - 2) * 82, 0];
+  const bp = [0, 1, 2, 3, 4].map(k => lp(line(k), g.old[k], m));
+  const shown = sub === 0 ? p * 5.6 : 5;
+  const l1 = lp([bp[0][0] - 44, 0], K, m), r5 = lp([bp[4][0] + 44, 0], K, m);
+  const be = lp([-400, 0], [K[0] - 95, K[1] + 105], m), re = lp([400, 0], [K[0] + 95, K[1] + 105], m);
+  const coreOp = sub === 3 ? .35 : 1;
+  let out = '';
+  out += threadPath([be, l1], 'b', sub === 3 ? 0 : 1, sub < 3);
+  out += threadPath([re, r5], 'r', 1, true);
+  out += threadPath([l1, bp[0], bp[1], bp[2]], 'b', coreOp, false);
+  out += threadPath([bp[2], bp[3], bp[4], r5], 'r', coreOp, false);
+  bp.forEach((q, k) => {
+    const sc = Math.max(0, Math.min(1, (shown - k) * 1.6));
+    out += bead(q[0], q[1], H, { scale: sc, num: sc > .6 ? k + 1 : null, glow: sub === 0 && sc > 0 ? 1 : 0 });
+  });
+  if (sub >= 2) out += `<circle cx="${K[0]}" cy="${K[1] + 6}" r="${14 * (sub === 2 ? ease(p) : 1)}" fill="#3a2a1a"/>`;
+  if (sub === 3) {
+    const mv = R.steps[3];
+    out += ring2(g.old[0], BR + 14, .9);
+    out += threadPath(partial(mv, p), 'b', 1, true);
+  }
+  return out;
+}
+
+function drawRound(R, s, p) {
+  const g = R.g, steps = R.steps, cur = steps[s];
+  let out = '';
+  // Maschen-Kennzeichen außen
+  for (let j = 0; j < g.M; j++) {
+    const c = R.seq[j], q = pt(g.RoC + 58, g.mid(j)), now = cur.masche === j;
+    const fill = c === 'p' ? PLUS : c === 'm' ? MINUS : '#f2e3cf';
+    out += `<circle cx="${q[0]}" cy="${q[1]}" r="${now ? 27 : 21}" fill="${fill}" stroke="${now ? '#2d2620' : 'none'}" stroke-width="4" opacity="${now ? 1 : .8}"/>`;
+    out += `<text x="${q[0]}" y="${q[1] + 7}" text-anchor="middle" font-size="${now ? 22 : 18}" font-weight="700" fill="${c === 'n' ? '#5a2f14' : '#fff'}">${j + 1}</text>`;
+  }
+  // alte Perlen
+  g.old.forEach((q, i) => { out += bead(q[0], q[1], R.oldCols[i], { num: i + 1, faded: true }); });
+  (cur.oldHi || []).forEach(i => { out += ring2(g.old[i], BR + 14); });
+  if (cur.hiS0) out += ring2(g.S(0), BR + 16);
+  // neue Perlen
+  const made = [];
+  steps.forEach((st, k) => {
+    if (k > s || !st.nw) return;
+    st.nw.forEach((idx, n) => {
+      const f = st.cum[idx] / st.len;
+      if (k === s && f > p + 1e-6) return;
+      const age = k === s ? 1 : k === s - 1 ? .6 : 0;
+      const sc = k === s ? Math.min(1, .4 + (p - f) * 6) : 1;
+      made.push(bead(st.pts[idx][0], st.pts[idx][1], st.nwCol[n], { glow: age, scale: sc }));
+    });
+  });
+  out += made.join('');
+  // Schnüre
+  const lastOf = {};
+  steps.forEach((st, k) => { if (st.kind === 'move' && k <= s) lastOf[st.c] = k; });
+  steps.forEach((st, k) => {
+    if (st.kind !== 'move' || k > s) return;
+    const pp = k === s ? p : 1;
+    if (pp <= 0) return;
+    const op = k === s ? 1 : k === s - 1 ? .75 : k >= s - 3 ? .45 : .2;
+    out += threadPath(partial(st, pp), st.c, op, lastOf[st.c] === k);
+  });
+  // Enden am Rundenanfang, bevor sich etwas bewegt
+  if (s === 0 && p === 0) {
+    const a = steps[0], b = steps[1];
+    [a, b].forEach(st => {
+      const q = st.pts[0], q0 = lp(q, [0, 0], .25);
+      out += threadPath([q0, q], st.c, 1, true);
+    });
+  }
+  return out;
+}
+
+const svg = document.getElementById('svg'), scene = document.getElementById('scene');
+function draw() {
+  const R = ROUNDS[state.ri];
+  const W = R.W;
+  svg.setAttribute('viewBox', `${-W} ${-W} ${2 * W} ${2 * W}`);
+  scene.innerHTML = R.r === 1 ? drawRound1(R, state.s, state.p) : drawRound(R, state.s, state.p);
+}
+
+// ---------- Oberfläche ----------
+const state = { ri: 0, s: 0, p: 0, playing: false, once: false, hold: 0 };
+const $ = id => document.getElementById(id);
+
+function buildRoundList() {
+  const box = $('rounds');
+  box.innerHTML = ROUNDS.map((R, i) =>
+    `<button class="area-${R.area}" data-i="${i}" title="Runde ${R.r} · ${R.area} · ${R.after} Perlen">` +
+    `<span>R ${R.r}</span><span class="bar" style="width:${(R.after / 20 * 100).toFixed(0)}%"></span><span class="cnt">${R.after}</span></button>`).join('');
+  box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) goRound(+b.dataset.i); });
+}
+
+// Letzte Stelle merken (nur in diesem Browser, auf diesem Gerät)
+const SAVE_KEY = 'hochlandrind-stelle';
+function save() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ r: state.ri + 1, s: state.s + 1, speed })); } catch (e) { /* privates Fenster o. Ä. */ }
+}
+function load() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || null; } catch (e) { return null; }
+}
+
+function updateUI() {
+  save();
+  const R = ROUNDS[state.ri], st = R.steps[state.s];
+  document.querySelectorAll('#rounds button').forEach((b, i) => b.classList.toggle('on', i === state.ri));
+  $('title').textContent = `Runde ${R.r} · ${R.area}`;
+  const nPlus = [...R.seq].filter(c => c === 'p').length, nMinus = [...R.seq].filter(c => c === 'm').length;
+  $('counts').innerHTML = (R.r === 1 ? '<span>Startkreis</span>' : `<span>alte Perlen: <b>${R.prev}</b></span><span>${R.seq.length} Maschen</span>`) +
+    `<span>danach: <b>${R.after}</b> Perlen</span><span>neue Perlen: <b>${R.newCount}</b></span>` +
+    `<span><i class="dot" style="background:${H}"></i>${R.hell} hell</span>` + (R.mittel ? `<span><i class="dot" style="background:${MB}"></i>${R.mittel} mittel</span>` : '') + (R.dunkel ? `<span><i class="dot" style="background:${D}"></i>${R.dunkel} dunkel</span>` : '') +
+    (nPlus ? `<span style="color:${PLUS}"><b>${nPlus}× Plus</b></span>` : '') + (nMinus ? `<span style="color:${MINUS}"><b>${nMinus}× Minus</b></span>` : '');
+  $('seq').innerHTML = [...R.seq].map((c, j) => {
+    const cls = [c, st.masche === j ? 'now' : '', st.masche > j || st.kind === 'done' || (st.masche == null && state.s > 0) ? 'done' : ''].join(' ');
+    return `<span class="${cls}">${c === 'p' ? '+' : c === 'm' ? '−' : j + 1}</span>`;
+  }).join('');
+  $('hint').hidden = !R.hint; $('hint').innerHTML = R.hint ? '💡 ' + R.hint : '';
+  $('stepT').textContent = `Schritt ${state.s + 1} von ${R.steps.length} · ${st.title}`;
+  $('stepX').innerHTML = st.text;
+  $('steps').innerHTML = R.steps.map((x, k) => `<li data-k="${k}" class="${k === state.s ? 'on' : k < state.s ? 'done' : ''}">${x.title}</li>`).join('');
+  const list = $('steps'), on = list.querySelector('.on');   // nur die Liste scrollen, nicht die Seite
+  if (on) list.scrollTop = on.offsetTop - list.clientHeight / 2;
+  $('bPlay').textContent = state.playing ? '⏸ Pause' : '▶ Abspielen';
+}
+
+function goRound(i, atEnd = false) {
+  state.ri = Math.max(0, Math.min(ROUNDS.length - 1, i));
+  const n = ROUNDS[state.ri].steps.length;
+  state.s = atEnd ? n - 1 : 0; state.p = atEnd ? 1 : 0; state.hold = 0;
+  updateUI(); draw();
+}
+function goStep(k, animate) {
+  const R = ROUNDS[state.ri];
+  if (k >= R.steps.length) { if (state.ri < ROUNDS.length - 1) { goRound(state.ri + 1); if (animate) state.once = !state.playing; } else { state.playing = false; updateUI(); } return; }
+  if (k < 0) { if (state.ri > 0) goRound(state.ri - 1, true); return; }
+  state.s = k; state.p = 0; state.hold = 0;
+  if (animate && !state.playing) state.once = true;
+  updateUI(); draw();
+}
+function next() {
+  const R = ROUNDS[state.ri];
+  if (state.p < 1 && !state.playing && !state.once) { state.once = true; return; }   // zuerst den aktuellen Schritt zeigen
+  if (state.p < 1) { state.p = 1; draw(); return; }
+  goStep(state.s + 1, true);
+}
+function prev() {
+  if (state.p > 0.05 && !state.playing) { state.p = 0; state.once = false; draw(); return; }
+  goStep(state.s - 1, false);
+  state.p = 1; state.once = false; draw();
+}
+function togglePlay() {
+  state.playing = !state.playing; state.once = false;
+  const R = ROUNDS[state.ri];
+  if (state.playing && state.p >= 1 && state.s === R.steps.length - 1 && state.ri === ROUNDS.length - 1) goRound(0);
+  updateUI();
+}
+
+$('bPlay').onclick = togglePlay;
+$('bNext').onclick = next;
+$('bPrev').onclick = prev;
+$('bRoundNext').onclick = () => goRound(state.ri + 1);
+$('bRoundPrev').onclick = () => goRound(state.ri - 1);
+$('steps').addEventListener('click', e => { const li = e.target.closest('li'); if (li) goStep(+li.dataset.k, true); });
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT') return;
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') next();
+  else if (e.key === 'ArrowLeft') prev();
+  else if (e.key === 'PageDown') { e.preventDefault(); goRound(state.ri + 1); }
+  else if (e.key === 'PageUp') { e.preventDefault(); goRound(state.ri - 1); }
+});
+
+let speed = 1;
+$('speed').onchange = e => { speed = +e.target.value; save(); };
+
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  const R = ROUNDS[state.ri], st = R.steps[state.s];
+  if (state.playing || state.once) {
+    if (state.p < 1) {
+      state.p = Math.min(1, state.p + dt * speed / st.dur);
+      draw();
+    } else if (state.once) {
+      state.once = false;
+    } else {
+      state.hold += dt * speed;
+      const endOfRound = state.s === R.steps.length - 1;
+      if (state.hold > (endOfRound ? 2.0 : 0.7)) {
+        if (endOfRound && state.ri === ROUNDS.length - 1) { state.playing = false; updateUI(); }
+        else goStep(state.s + 1, false);
+      }
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+// Legende
+$('legend').innerHTML = [
+  [bead(0, 0, H), 'hellbraun'], [bead(0, 0, MB), 'mittelbraun'],
+  [bead(0, 0, D), 'dunkelbraun'], [bead(0, 0, H, { glow: 1 }), 'gerade neu'],
+  [bead(0, 0, MB, { faded: true }), 'alte Perle (blass)'],
+  [`<path d="M-30,0 L30,0" stroke="${COL.b}" stroke-width="12" marker-end="url(#ah-b)"/>`, 'blaues Ende'],
+  [`<path d="M-30,0 L30,0" stroke="${COL.r}" stroke-width="12" marker-end="url(#ah-r)"/>`, 'rotes Ende'],
+  [`<circle r="30" fill="${PLUS}"/>`, 'Plus-Masche'], [`<circle r="30" fill="${MINUS}"/>`, 'Minus-Masche'],
+  [ring2([0, 0], 36), 'durch diese Perle'], [`<circle r="30" fill="#f2e3cf"/>`, 'normale Masche'],
+].map(([s, t]) => `<svg viewBox="-50 -50 100 100">${s}</svg><span>${t}</span>`).join('');
+
+buildRoundList();
+
+// QR-Code für das Handy: die Netzwerk-Adresse kommt vom Server (server.js)
+async function showQR() {
+  const dlg = $('qrDlg'), box = $('qrBox'), txt = $('qrUrl');
+  let url = null;
+  try {
+    const info = await (await fetch('info.json', { cache: 'no-store' })).json();
+    url = info.urls[0] || null;
+  } catch (e) { /* ohne Server (Datei direkt geöffnet) gibt es keine Adresse */ }
+  if (!url && !/^(localhost|127\.)/.test(location.hostname) && location.protocol.startsWith('http')) url = location.href.split('#')[0];
+  if (url && window.qrcode) {
+    const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+    box.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true });
+    txt.textContent = url;
+  } else {
+    box.innerHTML = '';
+    txt.innerHTML = 'Starte zuerst den Server im Terminal:<br><b>node app/server.js</b><br>und öffne dann <b>http://localhost:8080</b>.';
+  }
+  dlg.showModal();
+}
+$('bPhone').onclick = showQR;
+$('qrClose').onclick = () => $('qrDlg').close();
+
+// Offline: der Service Worker speichert die App (geht nur über https oder localhost)
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => { $('offline').hidden = false; }).catch(() => {});
+}
+let installEvent = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; $('bInstall').hidden = false; });
+$('bInstall').onclick = async () => {
+  if (!installEvent) return;
+  installEvent.prompt();
+  await installEvent.userChoice;
+  installEvent = null; $('bInstall').hidden = true;
+};
+// Startstelle: aus der Adresse (z. B. index.html#r=7&s=4&p=0.5), sonst die gemerkte Stelle.
+// Ein gemerkter Schritt wird fertig gezeigt (p = 1), damit man sieht, wo man war.
+const hp = new URLSearchParams(location.hash.slice(1)), saved = load();
+const start = hp.has('r') ? { r: +hp.get('r'), s: +hp.get('s') || 0, p: +(hp.get('p') ?? 1) } : saved ? { r: saved.r, s: saved.s, p: 1 } : { r: 1, s: 0, p: 0 };
+if (saved && [0.5, 1, 2].includes(saved.speed)) { speed = saved.speed; $('speed').value = String(speed); }
+goRound(Math.max(0, Math.min(ROUNDS.length - 1, (start.r || 1) - 1)));
+if (start.s > 0) { state.s = Math.min(start.s - 1, ROUNDS[state.ri].steps.length - 1); state.p = start.p; updateUI(); draw(); }
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
