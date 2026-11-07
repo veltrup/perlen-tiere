@@ -26,7 +26,7 @@ jobs:
       - name: Nur die App-Dateien einpacken
         run: |
           mkdir _site
-          cp app/index.html app/sw.js app/qrcode.js app/manifest.webmanifest app/icon.svg app/icon-192.png app/icon-512.png _site/
+          cp app/index.html app/sw.js app/qrcode.js app/art.js app/manifest.webmanifest app/icon.svg app/icon-192.png app/icon-512.png _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

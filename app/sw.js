@@ -1,8 +1,8 @@
 // Offline-Speicher für die Hochlandrind-App.
 // Online: immer die neueste Version vom Server holen und im Speicher ablegen.
 // Offline: die gespeicherte Version zeigen.
-const CACHE = 'hochlandrind-v1';
-const FILES = ['./', 'index.html', 'qrcode.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'hochlandrind-v2';
+const FILES = ['./', 'index.html', 'qrcode.js', 'art.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

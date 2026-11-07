@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hochlandrind – Runde für Runde</title>
+<title>Hochlandrind aus Perlen</title>
 <meta name="theme-color" content="#5a2f14">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <script src="qrcode.js"></script>
+<script src="art.js"></script>
 <style>
 :root {
   --bg: #fbf6ee; --card: #fffdf9; --line: #efe3d2; --ink: #2d2620; --soft: #7a6a5a; --brown: #5a2f14;
@@ -28,7 +29,7 @@ dialog h2 { justify-content: center; }
 #qrUrl { font-family: ui-monospace, monospace; font-size: 16px; word-break: break-all; }
 dialog .small { font-size: 13px; color: var(--soft); }
 dialog button { font: inherit; margin-top: 10px; padding: 8px 18px; border-radius: 10px; border: 0; background: var(--brown); color: #fff; cursor: pointer; }
-main { display: grid; grid-template-columns: 190px minmax(0, 1fr) 380px; gap: 16px; padding: 14px 20px 20px; align-items: start; }
+main { display: grid; grid-template-columns: 200px minmax(0, 1fr) 380px; gap: 16px; padding: 14px 20px 20px; align-items: start; }
 .card { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 12px; }
 h2 { margin: 0 0 8px; font-family: "Ubuntu", sans-serif; color: var(--brown); font-size: 20px; }
 h3 { margin: 12px 0 6px; font-size: 15px; color: var(--brown); }
@@ -45,6 +46,13 @@ h3 { margin: 12px 0 6px; font-size: 15px; color: var(--brown); }
 .rounds .area-Kopf .bar { background: #6B3A1F; }
 .rounds .cnt { text-align: right; color: var(--soft); }
 .areas { font-size: 12px; color: var(--soft); margin-top: 8px; line-height: 1.6; }
+#nav h3 { margin: 10px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--soft); }
+#nav h3:first-child { margin-top: 0; }
+.units { display: flex; flex-direction: column; gap: 2px; }
+.units button { all: unset; cursor: pointer; padding: 4px 8px; border-radius: 8px; font-size: 14px; }
+.units button:hover { background: #f6ecdf; }
+.units button:focus-visible { outline: 2px solid var(--blue); }
+.units button.on { background: var(--yellow); font-weight: 700; }
 .areas i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
 
 /* Bühne */
@@ -86,7 +94,7 @@ ol.steps li.done { color: var(--soft); }
 
 @media (max-width: 1150px) {
   main { grid-template-columns: 1fr; }
-  .rounds { flex-direction: row; flex-wrap: wrap; }
+  .rounds, .units { flex-direction: row; flex-wrap: wrap; }
   .areas { display: none; }
   .rounds button { grid-template-columns: auto; }
   .rounds .bar, .rounds .cnt { display: none; }
@@ -108,11 +116,11 @@ ol.steps li.done { color: var(--soft); }
 </head>
 <body>
 <header>
-  <h1>Hochlandrind · Runde für Runde</h1>
+  <h1>Hochlandrind aus Perlen</h1>
   <button class="phone" id="bPhone">📱 Auf dem Handy öffnen</button>
   <button class="phone" id="bInstall" hidden>📲 App installieren</button>
   <span class="offline" id="offline" hidden>✓ offline bereit</span>
-  <p>Körper, Hals und Kopf – von oben gesehen. Blasse Perlen = alte Runde, gelb leuchtend = gerade neu. Fell: hell-, mittel- und dunkelbraun gemischt.</p>
+  <p>Schritt für Schritt: Material, Körper, Kleinteile und Zusammenbau. Gelb leuchtend = gerade neu, blasse Perlen = alte Runde.</p>
 </header>
 <dialog id="qrDlg">
   <h2>Mit dem Handy öffnen</h2>
@@ -122,26 +130,23 @@ ol.steps li.done { color: var(--soft); }
   <button id="qrClose">Schließen</button>
 </dialog>
 <main>
-  <nav class="card" aria-label="Runden">
-    <h2>Runden</h2>
-    <div class="rounds" id="rounds"></div>
-    <div class="areas"><i style="background:var(--H)"></i>Körper<br><i style="background:#9C5A2C"></i>Hals<br><i style="background:#6B3A1F"></i>Kopf<br>Unten fängst du an, oben hörst du auf.</div>
-  </nav>
+  <nav class="card" aria-label="Abschnitte" id="nav"></nav>
 
   <section class="card stage">
-    <svg id="svg" viewBox="-400 -400 800 800" role="img" aria-label="Perlen von oben">
+    <svg id="svg" viewBox="-400 -400 800 800" role="img" aria-label="Animation">
       <defs>
         <marker id="ah-b" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1F6FD6"/></marker>
         <marker id="ah-r" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E0442B"/></marker>
+        <marker id="ah-g" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#777"/></marker>
       </defs>
       <g id="scene"></g>
     </svg>
     <div class="controls">
-      <button id="bRoundPrev" title="Vorige Runde (Bild ↑)">⏮</button>
+      <button id="bRoundPrev" title="Voriger Abschnitt (Bild ↑)">⏮</button>
       <button id="bPrev" title="Schritt zurück (←)">◀</button>
       <button id="bPlay" class="play" title="Abspielen / Pause (Leertaste)">▶ Abspielen</button>
       <button id="bNext" title="Nächster Schritt (→)">▶|</button>
-      <button id="bRoundNext" title="Nächste Runde (Bild ↓)">⏭</button>
+      <button id="bRoundNext" title="Nächster Abschnitt (Bild ↓)">⏭</button>
       <label>Tempo
         <select id="speed">
           <option value="0.5">langsam</option>
@@ -150,7 +155,7 @@ ol.steps li.done { color: var(--soft); }
         </select>
       </label>
     </div>
-    <div class="keys">Tasten: Leertaste = Abspielen/Pause · → nächster Schritt · ← zurück · Bild ↑/↓ = Runde wechseln</div>
+    <div class="keys">Tasten: Leertaste = Abspielen/Pause · → nächster Schritt · ← zurück · Bild ↑/↓ = Abschnitt wechseln</div>
   </section>
 
   <aside class="card">
@@ -159,7 +164,7 @@ ol.steps li.done { color: var(--soft); }
     <div class="seq" id="seq"></div>
     <div class="hint" id="hint" hidden></div>
     <div class="now-step"><div class="t" id="stepT"></div><div class="x" id="stepX"></div></div>
-    <h3>Alle Schritte dieser Runde</h3>
+    <h3>Alle Schritte</h3>
     <ol class="steps" id="steps"></ol>
     <h3>Zeichen</h3>
     <div class="legend" id="legend"></div>
@@ -196,7 +201,7 @@ const lp = (p, q, t) => [lerp(p[0], q[0], t), lerp(p[1], q[1], t)];
 const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 const nm = (c) => `<span class="${c}">${NAME[c]}</span>`;
 const plural = (n, one, many) => n === 1 ? one : many;
-const cname = c => c === H ? 'hell' : c === MB ? 'mittel' : 'dunkel';
+const cname = c => ({ [H]: 'hell', [MB]: 'mittel', [D]: 'dunkel', '#F2E2BF': 'cremeweiß', '#262626': 'schwarz' })[c] || '';
 const dots = cols => '<span class="cols">Farben: ' + cols.map(c => `<i class="dot" style="background:${c}"></i>${cname(c)}`).join(' · ') + '</span>';
 // Feste Zufallsfolge: jedes Mal dieselben Farben, damit man nachfädeln kann.
 function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -340,7 +345,10 @@ function bead(x, y, fill, o = {}) {
   s += `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${shade(fill, .62)}" stroke-width="3"/>`;
   if (o.faded) s += `<circle cx="${x}" cy="${y}" r="${r + 1.5}" fill="#fffdf9" opacity=".5"/>`;
   s += `<circle cx="${x - r * .35}" cy="${y - r * .38}" r="${r * .3}" fill="#fff" opacity=".5"/>`;
-  if (o.num != null) s += `<text x="${x}" y="${y + r * .36}" text-anchor="middle" font-size="${r * 1.0}" font-weight="700" fill="#3a2a1a">${o.num}</text>`;
+  if (o.num != null) {
+    const n = parseInt(fill.slice(1), 16), lum = (.3 * (n >> 16) + .59 * ((n >> 8) & 255) + .11 * (n & 255)) / 255;
+    s += `<text x="${x}" y="${y + r * .36}" text-anchor="middle" font-size="${r * 1.0}" font-weight="700" fill="${lum < .45 && !o.faded ? '#fff' : '#3a2a1a'}">${o.num}</text>`;
+  }
   return s;
 }
 function poly(pts) { return 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' L'); }
@@ -434,30 +442,542 @@ function drawRound(R, s, p) {
   return out;
 }
 
+// ---------- Kleinteile, Zusammenbau, Material ----------
+const CR = '#F2E2BF', BK = '#262626', WOOL = '#8B5A2B';
+const UNITS = [];
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const rowCols = (cols, n) => Array.from({ length: n }, (_, j) => cols[j % cols.length]);
+const label = (x, y, t, size = 30, color = '#5a2f14', anchor = 'middle') =>
+  `<text x="${x}" y="${y}" font-size="${size}" font-weight="700" fill="${color}" text-anchor="${anchor}">${t}</text>`;
+const knot = (x, y, sc = 1) => sc > 0 ? `<circle cx="${x}" cy="${y}" r="${16 * sc}" fill="#3a2a1a"/>` : '';
+const countChips = cols => {
+  const n = c => cols.filter(x => x === c).length;
+  return [[H, 'hell'], [MB, 'mittel'], [D, 'dunkel'], [CR, 'cremeweiß'], [BK, 'schwarz']]
+    .filter(([c]) => n(c)).map(([c, t]) => `<span><i class="dot" style="background:${c}"></i>${n(c)} ${t}</span>`).join('');
+};
+
+// Schnüre aller Schritte bis jetzt: der aktuelle kräftig, ältere blasser, Pfeil am freien Ende jeder Farbe
+function movesSVG(steps, s, p, fade = 1) {
+  let out = '';
+  const lastOf = {};
+  steps.forEach((st, k) => { if (st.kind === 'move' && k <= s) lastOf[st.c] = k; });
+  steps.forEach((st, k) => {
+    if (st.kind !== 'move' || k > s) return;
+    const pp = k === s ? p : 1;
+    if (pp <= 0) return;
+    const op = (k === s ? 1 : k === s - 1 ? .75 : k >= s - 3 ? .45 : .22) * fade;
+    out += threadPath(partial(st, pp), st.c, op, lastOf[st.c] === k);
+  });
+  return out;
+}
+// Neue Perlen, die eine Schnur unterwegs aufnimmt (Position = Punkt im Schnur-Weg)
+function pickedSVG(steps, s, p, posOf) {
+  let out = '';
+  steps.forEach((st, k) => {
+    if (k > s || !st.nw) return;
+    st.nw.forEach((idx, n) => {
+      const f = st.cum[idx] / st.len;
+      if (k === s && f > p + 1e-6) return;
+      const q = posOf ? posOf(st, n) : st.pts[idx];
+      const glow = k === s ? 1 : k === s - 1 ? .6 : 0;
+      out += bead(q[0], q[1], st.nwCol[n], { glow, scale: k === s ? Math.min(1, .4 + (p - f) * 6) : 1 });
+    });
+  });
+  return out;
+}
+
+// ---------- Flache Teile: „Reihen kreuzen“ ----------
+// Rot nimmt die Perlen einer neuen Reihe auf, Blau geht von der anderen Seite durch dieselben Perlen.
+function ladderUnit(o) {
+  const SP = 66, RH = 64, PAD = 54, dirY = o.down ? 1 : -1;
+  const U = Object.assign({ group: 'Kleinteile', seq: '', kind: 'ladder' }, o);
+  U.flat = (i, j) => [(j - (o.rows[i] - 1) / 2) * SP, dirY * i * RH];
+  U.side = (i, d) => [d * ((o.rows[i] - 1) / 2 * SP + PAD), dirY * i * RH];
+  U.cols = o.rows.map((n, i) => rowCols(o.colors[i] || o.colors[0], n));
+  const n0 = o.rows[0];
+  U.steps = [{ kind: 'lad0', dur: 0.8 + n0 * 0.45, title: 'Reihe 1',
+    text: `Schneide <b>${o.cm} cm</b> Schnur ab. Fädle die <b>${n0} ${plural(n0, 'Perle', 'Perlen')}</b> der 1. Reihe auf und schiebe sie in die Mitte. Links ist ${nm('b')}, rechts ${nm('r')}.` + dots(U.cols[0]) }];
+  let rS = 1, bS = -1;
+  for (let i = 1; i < o.rows.length; i++) {
+    const n = o.rows[i];
+    const order = d => Array.from({ length: n }, (_, k) => d > 0 ? n - 1 - k : k);   // von Seite d zur anderen Seite
+    const ro = order(rS), bo = order(bS);
+    const rPts = [U.side(i - 1, rS), U.side(i, rS), ...ro.map(j => U.flat(i, j)), U.side(i, -rS)];
+    U.steps.push(mkMove('r', rPts, ro.map((_, k) => 2 + k), { keys: ro.map(j => [i, j]), nwCol: ro.map(j => U.cols[i][j]),
+      title: `Reihe ${i + 1} · aufnehmen`,
+      text: `${nm('r')} nimmt die <b>${n} ${plural(n, 'Perle', 'Perlen')}</b> der ${i + 1}. Reihe auf.` + dots(ro.map(j => U.cols[i][j])) }));
+    U.steps.push(mkMove('b', [U.side(i - 1, bS), U.side(i, bS), ...bo.map(j => U.flat(i, j)), U.side(i, -bS)], [], {
+      title: `Reihe ${i + 1} · kreuzen`,
+      text: `${nm('b')} geht <b>von der anderen Seite</b> durch ${n === 1 ? 'dieselbe Perle' : `dieselben ${n} Perlen`}. Festziehen – die neue Reihe liegt jetzt ${o.down ? 'unter' : 'auf'} der alten.` }));
+    rS = -rS; bS = -bS;
+  }
+  (o.outro || []).forEach(x => U.steps.push(Object.assign({ kind: 'info', dur: 1.4 }, x)));
+  U.bendIdx = U.steps.findIndex(x => x.kind === 'bend');
+  if (U.bendIdx < 0) U.bendIdx = null;
+  // Bildausschnitt: alle Perlen (flach und gebogen) plus Platz für die Schnurenden
+  const ps = [];
+  o.rows.forEach((n, i) => { for (let j = 0; j < n; j++) { ps.push(U.flat(i, j)); if (o.bend) ps.push(o.bend(i, j)); } });
+  ps.push(U.side(0, -1), U.side(0, 1));
+  const xs = ps.map(q => q[0]), ys = ps.map(q => q[1]);
+  const x0 = Math.min(...xs) - 260, x1 = Math.max(...xs) + 260, y0 = Math.min(...ys) - 110, y1 = Math.max(...ys) + 110;
+  U.vb = [x0, y0, x1 - x0, y1 - y0];
+  const all = U.cols.flat();
+  U.info = `<span><b>${o.cm} cm</b> Schnur</span><span>${all.length} Perlen pro Stück</span>` + countChips(all) + `<span>Anzahl: <b>× ${o.times}</b></span>`;
+  U.draw = drawLadder;
+  return U;
+}
+
+function drawLadder(U, s, p) {
+  const b = U.bendIdx == null ? 0 : s > U.bendIdx ? 1 : s === U.bendIdx ? ease(p) : 0;
+  const pos = (i, j) => U.bend ? lp(U.flat(i, j), U.bend(i, j), b) : U.flat(i, j);
+  let out = '';
+  // Reihe 1
+  const n0 = U.rows[0], shown = s === 0 ? p * (n0 + .6) : n0;
+  for (let j = 0; j < n0; j++) {
+    const sc = clamp01((shown - j) * 1.6), q = pos(0, j);
+    out += bead(q[0], q[1], U.cols[0][j], { scale: sc, glow: s === 0 && sc > 0 ? 1 : 0 });
+  }
+  // aufgenommene Perlen
+  U.steps.forEach((st, k) => {
+    if (k > s || !st.keys) return;
+    st.nw.forEach((idx, n) => {
+      const f = st.cum[idx] / st.len;
+      if (k === s && f > p + 1e-6) return;
+      const [i, j] = st.keys[n], q = pos(i, j);
+      out += bead(q[0], q[1], st.nwCol[n], { glow: k === s ? 1 : k === s - 1 ? .6 : 0, scale: k === s ? Math.min(1, .4 + (p - f) * 6) : 1 });
+    });
+  });
+  // Schnüre, solange das Teil flach liegt
+  const fade = 1 - clamp01(b * 3);
+  if (fade > 0) {
+    const L0 = U.side(0, -1), R0 = U.side(0, 1), row0 = Array.from({ length: n0 }, (_, j) => U.flat(0, j));
+    const half = Math.ceil(n0 / 2);
+    const core = s === 0 ? 1 : .35;
+    out += threadPath([L0, ...row0.slice(0, half)], 'b', core * fade, false);
+    out += threadPath([...row0.slice(half - 1), R0], 'r', core * fade, false);
+    const firstB = U.steps.findIndex(x => x.c === 'b'), firstR = U.steps.findIndex(x => x.c === 'r');
+    if (firstB < 0 || s < firstB || (s === firstB && p === 0)) out += threadPath([L0, [L0[0] - 170, L0[1]]], 'b', fade, true);
+    if (firstR < 0 || s < firstR || (s === firstR && p === 0)) out += threadPath([R0, [R0[0] + 170, R0[1]]], 'r', fade, true);
+    out += movesSVG(U.steps, s, p, fade);
+  }
+  return out;
+}
+
+// ---------- Maul mit Nase ----------
+function maulUnit() {
+  const RX = 190, RY = 135, n = 12;
+  const ringP = i => [RX * Math.cos((-90 + i * 30) * Math.PI / 180), RY * Math.sin((-90 + i * 30) * Math.PI / 180)];
+  const lineP = i => [(i - 5.5) * 66, 0];
+  const at = a => [RX * Math.cos(a * Math.PI / 180), RY * Math.sin(a * Math.PI / 180)];
+  const K = at(255), J1 = at(285), out1 = [J1[0] + 40, J1[1] - 70];
+  const C1 = [0, -44], C2 = [0, 44], B7 = ringP(6), below = [0, RY + 90];
+  const U = { id: 'maul', group: 'Kleinteile', nav: 'Maul', title: 'Maul mit Nase · × 1', seq: '', vb: [-470, -330, 940, 640],
+    hint: 'Das Maul ist ein Ring aus cremeweißen Perlen mit 2 Löchern – da kommen später die Nasenlöcher rein.',
+    info: '<span><b>30 cm</b> Schnur</span><span>14 Perlen</span>' + countChips(Array(14).fill(CR)) + '<span>Anzahl: <b>× 1</b></span>',
+    ringP, lineP, K, J1 };
+  U.steps = [
+    { kind: 'm0', dur: 4, title: 'Auffädeln', text: `Schneide <b>30 cm</b> Schnur ab und fädle <b>12 cremeweiße</b> Perlen auf. Schiebe sie in die Mitte.` },
+    { kind: 'm1', dur: 2.2, title: 'Kreis legen', text: 'Leg die Perlen zu einem <b>Kreis</b>. Perle 12 liegt jetzt neben Perle 1.' },
+    mkMove('r', [K, ringP(0), J1, out1], [], { title: 'Über Kreuz', text: `${nm('r')} geht durch <b>Perle 1</b>. Jetzt laufen beide Enden <b>über Kreuz</b> durch Perle 1.`, hi: [ringP(0)] }),
+    { kind: 'm3', dur: 1.2, title: 'Knoten', text: 'Mache <b>2 Knoten</b> und ziehe fest. Der Kreis ist etwa <b>1,5 cm</b> groß.' },
+    mkMove('r', [out1, J1, C1, C2, B7, below], [2, 3], { nwCol: [CR, CR], title: 'Steg', text: `${nm('r')} nimmt <b>2 Perlen</b> auf und geht durch <b>Perle 7</b> auf der anderen Seite. Festziehen.` + dots([CR, CR]), hi: [B7] }),
+    { kind: 'info', dur: 1.6, title: '2 Löcher', text: 'Jetzt hat das Maul <b>2 Löcher</b> – das werden die <b>Nasenlöcher</b>. Die schwarzen Perlen kommen erst beim Zusammenbau dazu.', holes: true },
+  ];
+  U.draw = (U, s, p) => {
+    const m = s === 0 ? 0 : s === 1 ? ease(p) : 1;
+    const bp = Array.from({ length: n }, (_, i) => lp(lineP(i), ringP(i), m));
+    const l1 = lp([lineP(0)[0] - 48, 0], K, m), r12 = lp([lineP(11)[0] + 48, 0], K, m);
+    const be = lp([lineP(0)[0] - 260, 0], [K[0] - 150, K[1] - 120], m), re = lp([lineP(11)[0] + 260, 0], [K[0] - 40, K[1] - 160], m);
+    let out = '';
+    const shown = s === 0 ? p * (n + .6) : n;
+    bp.forEach((q, i) => {
+      const sc = clamp01((shown - i) * 1.6);
+      out += bead(q[0], q[1], CR, { scale: sc, num: sc > .6 ? i + 1 : null, glow: s === 0 && sc > 0 ? 1 : 0 });
+    });
+    out += pickedSVG(U.steps, s, p);
+    const core = s >= 2 ? .35 : 1;
+    out += threadPath([l1, ...bp.slice(0, 6)], 'b', core, false) + threadPath([...bp.slice(5), r12], 'r', core, false);
+    out += threadPath([l1, be], 'b', 1, true);
+    if (s < 2 || (s === 2 && p === 0)) out += threadPath([r12, re], 'r', 1, true);
+    out += movesSVG(U.steps, s, p);
+    if (s >= 3) out += knot(J1[0] - 10, J1[1] - 34, s === 3 ? ease(p) : 1);
+    (U.steps[s].hi || []).forEach(q => { out += ring2(q, BR + 14); });
+    if (U.steps[s].holes) [-1, 1].forEach(d => {
+      out += `<circle cx="${d * 95}" cy="0" r="48" fill="none" stroke="#777" stroke-width="5" stroke-dasharray="10 8" opacity="${p}"/>` + label(d * 95, 10, 'Loch', 28, '#777');
+    });
+    return out;
+  };
+  return U;
+}
+
+// ---------- Schwanz ----------
+function schwanzUnit() {
+  const B = i => [i * 66 - 297, 0], c10 = B(9), E = [c10[0] + 62, 0], L10 = [c10[0] - 33, 0];
+  const petal = a => [[-16, 132], [0, 218], [16, 132]].map(([da, r]) => [c10[0] + r * Math.cos((a + da) * Math.PI / 180), r * Math.sin((a + da) * Math.PI / 180)]);
+  const loops = [-75, 0, 75].map(petal);
+  const U = { id: 'schwanz', group: 'Kleinteile', nav: 'Schwanz', title: 'Schwanz · × 1', seq: '', vb: [-520, -330, 1200, 660],
+    hint: 'Die 3 Schlaufen am Ende sind die Quaste.', B };
+  const all = Array(19).fill(D);
+  U.info = '<span><b>25 cm</b> Schnur</span><span>19 Perlen</span>' + countChips(all) + '<span>Anzahl: <b>× 1</b></span>';
+  U.steps = [{ kind: 's0', dur: 4.2, title: 'Auffädeln', text: `Schneide <b>25 cm</b> Schnur ab und fädle <b>10 dunkelbraune</b> Perlen auf.` }];
+  loops.forEach((P, k) => {
+    const pts = k === 0 ? [E, ...P, c10, L10] : [L10, c10, E, ...P, c10, L10];
+    const nw = k === 0 ? [1, 2, 3] : [3, 4, 5];
+    U.steps.push(mkMove('r', pts, nw, { nwCol: [D, D, D], hi: [c10], title: `Schlaufe ${k + 1}`,
+      text: (k === 0 ? `Fädle <b>3 Perlen</b> auf und gehe <b>zurück durch Perle 10</b>. Das ist eine Schlaufe.`
+        : `Gehe wieder durch Perle 10 nach außen. Fädle <b>3 Perlen</b> auf und gehe <b>zurück durch Perle 10</b>.`) + dots([D, D, D]) }));
+  });
+  U.steps.push(mkMove('r', [L10, ...Array.from({ length: 9 }, (_, i) => [B(8 - i)[0], 12]), [B(0)[0] - 90, 12]], [], {
+    title: 'Zurück nach oben', text: 'Gehe mit der Schnur durch <b>alle 10 Perlen</b> zurück nach oben. Jetzt liegen beide Enden bei Perle 1 – damit nähst du den Schwanz später an.' }));
+  U.draw = (U, s, p) => {
+    let out = '';
+    const shown = s === 0 ? p * 10.6 : 10;
+    for (let i = 0; i < 10; i++) {
+      const sc = clamp01((shown - i) * 1.6), q = B(i);
+      out += bead(q[0], q[1], D, { scale: sc, num: sc > .6 && (i === 0 || i === 9) ? i + 1 : null, glow: s === 0 && sc > 0 ? 1 : 0 });
+    }
+    out += pickedSVG(U.steps, s, p);
+    out += threadPath([[B(0)[0] - 40, 0], ...Array.from({ length: 10 }, (_, i) => B(i)), E], 'r', s === 0 ? 1 : .35, s === 0);
+    out += threadPath([[B(0)[0] - 40, 0], [B(0)[0] - 210, 0]], 'b', 1, true);
+    out += movesSVG(U.steps, s, p);
+    (U.steps[s].hi || []).forEach(q => { out += ring2(q, BR + 14); });
+    return out;
+  };
+  return U;
+}
+
+// ---------- Haare ----------
+function haareUnit() {
+  const rnd = mulberry32(11);
+  const X = k => (k - 4.5) * 118, KNOT = 300, TOP = -330;
+  const beadY = m => KNOT - 32 - m * 62;
+  const strands = Array.from({ length: 10 }, (_, k) => {
+    const n = k < 4 ? 6 : 8, light = k % 2 === 0;
+    const cols = Array.from({ length: n }, () => { const x = rnd(); return light ? (x < .6 ? H : x < .9 ? MB : D) : (x < .6 ? D : x < .9 ? MB : H); });
+    return { n, light, cols };
+  });
+  const U = { id: 'haare', group: 'Kleinteile', nav: 'Haare', title: 'Haare · × 10', seq: '', vb: [-680, -400, 1360, 860], strands,
+    hint: 'Die Haare sind aus Wolle mit Perlen. Sie kommen beim Zusammenbau oben auf den Kopf (siehe „Frisur“).' };
+  const all = strands.flatMap(x => x.cols);
+  U.info = '<span><b>10 Wollfäden</b> à 10 cm</span>' + `<span>${all.length} Perlen</span>` + countChips(all);
+  U.steps = [
+    { kind: 'h', dur: 2.4, title: 'Wolle schneiden', text: 'Schneide <b>10 Wollfäden</b> ab, jeden etwa <b>10 cm</b> lang.' },
+    { kind: 'h', dur: 1.2, title: 'Trick', text: 'Wickle etwas <b>Klebeband</b> um ein Wollende. Dann geht es leichter durch die Perlen.' },
+    { kind: 'h', dur: 1.2, title: 'Knoten', text: 'Mache am anderen Ende einen <b>dicken Knoten</b>.' },
+    { kind: 'h', dur: 3, title: 'Perlen auffädeln', text: 'Fädle <b>6 Perlen</b> auf. Sie rutschen nach unten bis zum Knoten.' + dots(strands[0].cols) },
+    { kind: 'h', dur: 1.4, title: '3 cm frei', text: 'Oben bleiben etwa <b>3 cm frei</b> – damit knotest du die Strähne später am Kopf fest.' },
+    { kind: 'h', dur: 4, title: '3 kurze Strähnen', text: 'Mache noch <b>3 kurze</b> Strähnen mit je <b>6 Perlen</b>. Die 4 kurzen kommen nach vorne über die Stirn.' },
+    { kind: 'h', dur: 6, title: '6 lange Strähnen', text: 'Mache <b>6 lange</b> Strähnen mit je <b>8 Perlen</b> – für die Seiten und hinten.' },
+    { kind: 'h', dur: 1.6, title: 'Hell und dunkel', text: 'Mache <b>5 Strähnen</b> mit mehr <b>hellen</b> und <b>5</b> mit mehr <b>dunklen</b> Perlen. Das sieht schön zottelig aus.' },
+  ];
+  U.draw = (U, s, p) => {
+    let out = '';
+    strands.forEach((st, k) => {
+      const x = X(k);
+      const wool = s === 0 ? clamp01(p * 10 - k) : 1;
+      if (wool <= 0) return;
+      // wie weit diese Strähne fertig ist (0..1): Strähne 1 in Schritt 4, 2–4 in Schritt 6, 5–10 in Schritt 7
+      let f = 0;
+      if (k === 0) f = s > 3 ? 1 : s === 3 ? p : 0;
+      else if (k < 4) f = s > 5 ? 1 : s === 5 ? clamp01(p * 3 - (k - 1)) : 0;
+      else f = s > 6 ? 1 : s === 6 ? clamp01(p * 6 - (k - 4)) : 0;
+      const kn = k === 0 ? (s > 2 ? 1 : s === 2 ? ease(p) : 0) : (f > 0 ? 1 : 0);
+      const y0 = lerp(KNOT, TOP, wool);
+      out += `<path d="M${x},${KNOT} C${x + 14},${KNOT - 200} ${x - 14},${TOP + 200} ${x},${y0}" fill="none" stroke="${WOOL}" stroke-width="10" stroke-linecap="round"/>`;
+      if (k === 0 && s >= 1) out += `<rect x="${x - 17}" y="${TOP - 6}" width="34" height="58" rx="6" fill="#1F6FD6" opacity="${s === 1 ? p : 1}"/>`;
+      out += knot(x, KNOT + 8, kn * 1.3);
+      const nb = Math.floor(f * st.n + 1e-6);
+      for (let m = 0; m < nb; m++) out += bead(x, beadY(m), st.cols[m], { glow: (k === 0 && s === 3) || (s === 5 && k < 4 && k > 0) || (s === 6 && k >= 4) ? .7 : 0 });
+      if (s >= 6 && f >= 1) out += label(x, KNOT + 72, st.n === 6 ? 'kurz' : 'lang', 28, '#7a6a5a');
+      if (s === 7) out += label(x, KNOT + 108, st.light ? 'hell' : 'dunkel', 28, st.light ? '#a0672f' : '#3a2a1a');
+    });
+    if (s >= 4) {
+      const x = X(0) - 52, top = TOP + 6, bot = beadY(5) - 36;
+      out += `<path d="M${x + 14},${top} H${x} V${bot} H${x + 14}" fill="none" stroke="#E0442B" stroke-width="5"/>` +
+        label(x - 12, (top + bot) / 2 + 10, '3 cm', 28, '#E0442B', 'end');
+    }
+    return out;
+  };
+  return U;
+}
+
+// ---------- Material ----------
+function materialUnit() {
+  const sum = (arr, c) => arr.filter(x => x === c).length;
+  const body = ROUNDS.reduce((a, R) => ({ h: a.h + R.hell, m: a.m + R.mittel, d: a.d + R.dunkel }), { h: 0, m: 0, d: 0 });
+  const hair = UNITS.find(u => u.id === 'haare').strands.flatMap(x => x.cols);
+  const bowls = [
+    [H, 'hellbraun', body.h + 8 + sum(hair, H)],
+    [MB, 'mittelbraun', body.m + sum(hair, MB)],
+    [D, 'dunkelbraun', body.d + 4 + 60 + 19 + sum(hair, D)],
+    [CR, 'cremeweiß', 30 + 14],
+    [BK, 'schwarz', 4],
+  ];
+  const total = bowls.reduce((n, b) => n + b[2], 0);
+  const U = { id: 'material', group: 'Vorbereitung', nav: 'Material', title: 'Das brauchst du', seq: '', vb: [-600, -230, 1200, 470],
+    info: `<span>zusammen etwa <b>${total} Perlen</b></span>`,
+    hint: 'Nimm von jeder Farbe ein paar Perlen mehr – es fällt immer mal eine runter.' };
+  U.steps = [
+    { kind: 'i', dur: 2.5, title: 'Perlen', text: 'So viele Perlen brauchst du ungefähr:<br>' + bowls.map(([c, t, n]) => `<i class="dot" style="background:${c}"></i>${n} ${t}`).join(' · ') + '.<br><span class="small">Die Haare und das Fell sind aus drei Brauntönen gemischt, Hörner und Maul cremeweiß, Augen und Nasenlöcher schwarz.</span>' },
+    { kind: 'i', dur: 1.5, title: 'Außerdem', text: '<b>Angelschnur</b> (Nylonfaden) aus dem Set · <b>Wolle</b> für die Haare · <b>Watte</b> zum Füllen · <b>Pinzette</b> · <b>Schere</b> · <b>Lineal</b> · kleine <b>Schälchen</b> · 2 kleine Stücke <b>Klebeband</b> in Blau und Rot.' },
+    { kind: 'i', dur: 1.5, title: 'Tipps', text: '1. Sortiere die Perlen nach Farben in Schälchen und leg ein Handtuch auf den Tisch. 2. Klebe <b style="color:#1F6FD6">blaues</b> und <b style="color:#E0442B">rotes</b> Klebeband an die Schnurenden. 3. Schneide die Enden schräg ab. 4. Nach jeder Masche festziehen. 5. Pause? Wäscheklammer auf die Enden.' },
+    { kind: 'i', dur: 1.5, title: 'Achtung', text: '<b>Perlen sind klein.</b> Halte sie von Babys und kleinen Geschwistern fern. Die Schere benutzt du am besten zusammen mit einem Erwachsenen.' },
+  ];
+  U.draw = (U, s, p) => {
+    let out = '';
+    const rnd = mulberry32(3);
+    bowls.forEach(([c, t, n], k) => {
+      const x = (k - 2) * 230, y = 40;
+      const a = s === 0 ? clamp01(p * 5 - k) : 1;
+      out += `<ellipse cx="${x}" cy="${y + 40}" rx="100" ry="34" fill="#efe3d2"/><path d="M${x - 100},${y + 40} Q${x},${y + 150} ${x + 100},${y + 40}" fill="#e2cfb4"/>`;
+      for (let m = 0; m < 7; m++) {
+        const bx = x + (m % 4 - 1.5) * 44 + (m > 3 ? 22 : 0), by = y + 30 - (m > 3 ? 36 : 0) + rnd() * 6;
+        out += bead(bx, by, c, { scale: .75 * clamp01(a * 2 - m / 7) });
+      }
+      out += label(x, y + 150, `${n}`, 44, '#2d2620') + label(x, y + 192, t, 28, '#7a6a5a');
+    });
+    if (s >= 1) {
+      out += `<g opacity="${s === 1 ? p : 1}">` +
+        `<circle cx="-500" cy="-150" r="40" fill="#dfe9f3" stroke="#8aa3bd" stroke-width="5"/><circle cx="-500" cy="-150" r="12" fill="#fff" stroke="#8aa3bd" stroke-width="4"/>` +
+        label(-445, -140, 'Schnur', 28, '#7a6a5a', 'start') +
+        `<path d="M-200,-180 C-180,-120 -160,-200 -140,-130" stroke="${WOOL}" stroke-width="10" fill="none" stroke-linecap="round"/>` + label(-120, -140, 'Wolle', 28, '#7a6a5a', 'start') +
+        [[60, -160], [88, -140], [70, -122], [100, -170]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="24" fill="#fff" stroke="#ddd" stroke-width="3"/>`).join('') + label(135, -140, 'Watte', 28, '#7a6a5a', 'start') +
+        `<path d="M290,-200 L340,-110 M302,-205 L346,-112" stroke="#888" stroke-width="7" stroke-linecap="round"/>` + label(365, -140, 'Pinzette', 28, '#7a6a5a', 'start') +
+        `</g>`;
+    }
+    return out;
+  };
+  return U;
+}
+
+// ---------- Annähen ----------
+function annaehenUnit() {
+  const body = [-240, -120, 0, 120, 240].map(x => [x, 300]), part = [-80, 0, 80].map(x => [x, 60]);
+  const bodyCols = [MB, H, D, MB, H];
+  const U = { id: 'annaehen', group: 'Zusammenbau', nav: 'Annähen lernen', title: 'So nähst du ein Teil an', seq: '', vb: [-380, -60, 760, 470],
+    hint: 'So nähst du jedes Teil an: Hörner, Ohren, Maul, Beine und Schwanz.', info: '<span>Die Schnurenden vom Teil sind die Nähfäden.</span>' };
+  U.steps = [
+    { kind: 'a0', dur: 1.5, title: 'Anlegen', text: 'Halte das Teil an die richtige Stelle am Körper. Die Schnurenden vom Teil hast du nicht abgeschnitten – das sind jetzt deine Nähfäden.' },
+    mkMove('b', [[-140, 60], [-170, 150], [-100, 262], body[1], [-196, 300], [-240, 250]], [], { title: 'Blau annähen', text: `${nm('b')} geht durch <b>eine Perle am Körper</b>.`, hi: [body[1]] }),
+    mkMove('r', [[140, 60], [170, 150], [100, 262], body[3], [196, 300], [240, 250]], [], { title: 'Rot annähen', text: `${nm('r')} geht auf der anderen Seite durch <b>eine Perle am Körper</b>.`, hi: [body[3]] }),
+    mkMove('b', [[-240, 250], [-210, 120], [-130, 60], part[0], [-30, 30]], [], { title: 'Blau zurück', text: `${nm('b')} geht noch einmal durch <b>eine Perle vom Teil</b> zurück.`, hi: [part[0]] }),
+    mkMove('r', [[240, 250], [210, 120], [130, 60], part[2], [30, 30]], [], { title: 'Rot zurück', text: `${nm('r')} macht es genauso.`, hi: [part[2]] }),
+    { kind: 'a5', dur: 1.5, title: 'Knoten', text: 'Mache <b>3 Knoten</b>, schneide die Schnur ab und schiebe den Knoten mit der Pinzette zwischen die Perlen.' },
+  ];
+  U.draw = (U, s, p) => {
+    let out = `<rect x="-330" y="250" width="660" height="140" rx="40" fill="#f6ecdf"/>` + label(0, 380, 'Körper', 28, '#9a8a7a');
+    body.forEach((q, i) => { out += bead(q[0], q[1], bodyCols[i], { faded: true }); });
+    const dy = s === 0 ? lerp(-120, 0, ease(p)) : 0;
+    out += `<g transform="translate(0 ${dy})">` + part.map(q => bead(q[0], q[1], CR)).join('') + label(0, -10, 'Teil (z. B. Horn)', 28, '#9a8a7a') +
+      (s <= 1 ? threadPath([[-112, 60], [-140, 60]], 'b', 1, s === 0 || p === 0) : '') + (s <= 2 ? threadPath([[112, 60], [140, 60]], 'r', 1, s < 2 || p === 0) : '') + '</g>';
+    if (s > 0) out += movesSVG(U.steps, s, p);
+    (U.steps[s].hi || []).forEach(q => { out += ring2(q, BR + 14); });
+    if (s === 5) out += knot(-30, 30, ease(p)) + knot(30, 30, ease(p));
+    return out;
+  };
+  return U;
+}
+
+// ---------- Füllen ----------
+function fuellenUnit() {
+  const A = ART.fuellen, puffs = A.puffs;
+  const nB = puffs.filter(q => q.y >= 112).length, nH = puffs.filter(q => q.y >= 95).length;
+  const U = { id: 'fuellen', group: 'Zusammenbau', nav: 'Füllen', title: 'Mit Watte füllen', seq: '', vb: [0, -14, 270, 205],
+    hint: 'Der Körper ist innen hohl – wie ein Luftballon aus Perlen. Erst mit Watte wird er prall und rund.',
+    info: '<span>Watte</span><span>Pinzette</span>' };
+  U.steps = [
+    { kind: 'f', dur: 1.4, title: 'Watte zupfen', text: 'Zupfe die Watte in <b>kleine Stücke</b>.' },
+    { kind: 'f', dur: 4, title: 'Bauch', text: 'Stopfe die Watte mit der Pinzette durch die <b>Öffnung oben</b> – zuerst ganz nach unten in den <b>Bauch</b>.', to: nB },
+    { kind: 'f', dur: 1.5, title: 'Hals', text: 'Dann in den <b>Hals</b>.', to: nH },
+    { kind: 'f', dur: 3, title: 'Kopf', text: 'Zum Schluss in den <b>Kopf</b>.', to: puffs.length },
+    { kind: 'f', dur: 2, title: 'Prall und rund', text: 'Stopfe so lange, bis das Rind <b>prall und rund</b> ist und sich nirgends mehr eindrücken lässt. Schnur <b>nicht</b> abschneiden!' },
+  ];
+  U.draw = (U, s, p) => {
+    const before = s <= 1 ? 0 : U.steps[s - 1].to;
+    const now = U.steps[s].to ? Math.floor(lerp(before, U.steps[s].to, p)) : s > 3 ? puffs.length : before;
+    const sc = s === 4 ? 1 + .035 * Math.sin(p * Math.PI) : 1;
+    let out = `<g transform="translate(110 100) scale(${sc}) translate(-110 -100)">` + puffs.slice(0, now).map(q => q.svg).join('') + A.hull + '</g>';
+    out += `<path d="M110,-8 L110,14" stroke="#777" stroke-width="2.5" marker-end="url(#ah-g)"/>` + label(140, 2, 'Öffnung', 8, '#777', 'start');
+    if (s === 0) out += [[225, 150], [240, 162], [222, 170], [248, 146]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${9 * clamp01(p * 4 - i)}" fill="#fff" stroke="#ddd" stroke-width="1.5"/>`).join('');
+    if (s >= 1 && s <= 3) {
+      const tip = 26 + 40 * (0.5 - 0.5 * Math.cos(p * Math.PI * 6));
+      out += `<path d="M104,${tip - 70} L109,${tip} M118,${tip - 70} L111,${tip}" stroke="#888" stroke-width="2.5" stroke-linecap="round"/><circle cx="110" cy="${tip}" r="7" fill="#fff" stroke="#ddd"/>`;
+    }
+    return out;
+  };
+  return U;
+}
+
+// ---------- Frisur ----------
+function frisurUnit() {
+  const A = ART.frisur, [cx, cy] = A.center;
+  const U = { id: 'frisur', group: 'Zusammenbau', nav: 'Frisur', title: 'Die Frisur', seq: '', vb: A.vb,
+    hint: 'Hochlandrinder haben lange, zottelige Haare. Bei deinem Rind wachsen sie alle aus der Mitte oben auf dem Kopf.',
+    info: '<span>Kopf von oben</span><span>10 Strähnen</span>' };
+  U.steps = [
+    { kind: 'z', dur: 1.5, title: 'Wann?', text: 'Die Haare kommen dran, wenn das Rind <b>gefüllt</b> ist, aber <b>bevor</b> du die Öffnung zumachst.', hiOpen: true },
+    { kind: 'z', dur: 3, title: 'Vorne zuerst', text: 'Knote die <b>4 kurzen</b> Strähnen an die Perlen der Öffnung, die zum <b>Gesicht</b> zeigen.', show: [0, 4] },
+    { kind: 'z', dur: 3, title: 'Seiten', text: 'Dann je <b>2 lange</b> Strähnen an die <b>linke</b> und die <b>rechte</b> Seite.', show: [4, 8] },
+    { kind: 'z', dur: 1.8, title: 'Hinten', text: 'Zum Schluss <b>2 lange</b> Strähnen nach <b>hinten</b>.', show: [8, 10] },
+    { kind: 'z', dur: 1.5, title: 'Festknoten', text: 'So knotest du fest: Schiebe das freie Wollende mit der Pinzette durch eine Perle der Öffnung und mache einen <b>Doppelknoten</b>. Die Öffnung hat nur 6 Perlen – an manche kommen 2 Strähnen.', hiOpen: true },
+    { kind: 'z', dur: 1.5, title: 'Frisieren', text: 'Hell und dunkel wechseln sich ab. Streiche die Strähnen mit den Fingern nach unten, sodass sie schön rund fallen.' },
+  ];
+  U.draw = (U, s, p) => {
+    let out = A.base;
+    A.strands.forEach((str, i) => {
+      let k = 0;
+      U.steps.forEach((st, j) => {
+        if (!st.show || i < st.show[0] || i >= st.show[1]) return;
+        k = j < s ? 1 : j === s ? clamp01(p * (st.show[1] - st.show[0]) - (i - st.show[0])) : 0;
+      });
+      if (s > 3) k = 1;
+      if (k > 0) out += `<g transform="translate(${cx} ${cy}) scale(${ease(k)}) translate(${-cx} ${-cy})">${str}</g>`;
+    });
+    out += A.opening;
+    if (U.steps[s].hiOpen) out += `<circle cx="${cx}" cy="${cy}" r="${20 + 3 * Math.sin(p * Math.PI * 4)}" fill="none" stroke="#F5B400" stroke-width="3" stroke-dasharray="5 4"/>`;
+    return out;
+  };
+  return U;
+}
+
+// ---------- Teile annähen (Rind von vorne) ----------
+const COW_ORDER = ['shadow', 'tail', 'hindlegs', 'body', 'frontlegs', 'horns', 'ears', 'head', 'eyes', 'hair', 'mouth', 'nostrils'];
+function cowSVG(show, anim = {}) {
+  const L = ART.cow.layers;
+  return COW_ORDER.map(k => {
+    if (!show.has(k) && !anim[k]) return '';
+    const a = anim[k];
+    if (!a) return L[k];
+    const sc = lerp(.6, 1, ease(a.t)), [x, y] = a.at;
+    return `<g opacity="${clamp01(a.t * 1.6)}" transform="translate(${x} ${y}) scale(${sc}) translate(${-x} ${-y})">${L[k]}</g>`;
+  }).join('');
+}
+function anbauUnit() {
+  const U = { id: 'anbau', group: 'Zusammenbau', nav: 'Teile annähen', title: 'Teile annähen', seq: '', vb: ART.cow.vb,
+    hint: 'Nähe jedes Teil so an, wie es bei „Annähen lernen“ gezeigt ist.', info: '<span>Hörner · Ohren · Maul · Augen · Beine · Schwanz</span>' };
+  U.steps = [
+    { layers: ['horns'], at: [[62, 70], [338, 70]], title: 'Hörner', text: 'Nähe die <b>Hörner</b> hinten seitlich oben am Kopf an (<b>Runde 13–14</b>). Sie zeigen nach außen und biegen sich nach oben.' },
+    { layers: ['ears'], at: [[82, 176], [318, 176]], title: 'Ohren', text: 'Nähe die <b>Ohren</b> an die Seiten des Kopfes, unter die Hörner (<b>Runde 12</b>). Sie dürfen ein bisschen hängen.' },
+    { layers: ['mouth'], at: [[200, 232]], title: 'Maul', text: 'Nähe das <b>Maul</b> vorne an den Kopf (<b>Runde 10–11</b>).' },
+    { layers: ['nostrils'], at: [[181, 236], [219, 236]], title: 'Nasenlöcher', text: 'Nähe in jedes der 2 Löcher eine <b>schwarze Perle</b> – das sind die Nasenlöcher.' },
+    { layers: ['eyes'], at: [[158, 185], [242, 185]], title: 'Augen', text: 'Nähe <b>2 schwarze Perlen</b> als Augen über das Maul (<b>Runde 12</b>). <span class="small">(Tipp – steht nicht in der Original-Anleitung, man sieht sie aber auf dem Foto.)</span>' },
+    { layers: ['hindlegs', 'frontlegs'], at: [[98, 372], [302, 372], [156, 380], [244, 380]], title: 'Beine', text: 'Nähe die <b>4 Beine</b> an die markierten Stellen aus <b>Runde 3</b>. Die Wollfäden darfst du danach abmachen.' },
+    { layers: ['tail'], at: [[290, 325]], title: 'Schwanz', text: 'Nähe den <b>Schwanz</b> hinten an <b>Runde 5</b> an (bei Masche 15). Er biegt sich nach oben.' },
+  ].map(x => Object.assign({ kind: 'c', dur: 1.8 }, x));
+  U.draw = (U, s, p) => {
+    const show = new Set(['shadow', 'body', 'head', 'hair']), anim = {};
+    U.steps.forEach((st, k) => {
+      if (k < s) st.layers.forEach(l => show.add(l));
+      if (k === s) st.layers.forEach(l => { anim[l] = { t: p, at: st.at.reduce((a, q) => [a[0] + q[0] / st.at.length, a[1] + q[1] / st.at.length], [0, 0]) }; });
+    });
+    let out = cowSVG(show, anim);
+    U.steps[s].at.forEach(q => { out += `<circle cx="${q[0]}" cy="${q[1]}" r="${22 + 4 * Math.sin(p * Math.PI * 4)}" fill="none" stroke="#F5B400" stroke-width="4" stroke-dasharray="6 5"/>`; });
+    return out;
+  };
+  return U;
+}
+
+// ---------- Zumachen ----------
+function zumachenUnit() {
+  const ringR = t => lerp(120, 52, t);
+  const cols = [D, MB, D, H, D, MB];
+  const U = { id: 'zumachen', group: 'Zusammenbau', nav: 'Zumachen', title: 'Zumachen – fertig!', seq: '',
+    vb: s => s < 3 ? [-280, -280, 560, 560] : ART.cow.vb,
+    hint: 'Dafür brauchst du die langen Schnurenden vom Körper, die du nach Runde 15 nicht abgeschnitten hast.', info: '<span>Öffnung oben: 6 Perlen aus Runde 15</span>' };
+  const beadsAt = r => cols.map((_, i) => pt(r, -90 + i * 60));
+  const pathAt = r => { const b = beadsAt(r); return [[b[0][0] - 60, b[0][1] - 90], ...b, b[0], [b[0][0] + 50, b[0][1] - 90]]; };
+  U.steps = [
+    Object.assign(mkMove('r', pathAt(ringR(0)), [], {}), { title: 'Durchfädeln', text: 'Fädle die langen Schnurenden vom Körper noch einmal durch <b>alle 6 Perlen</b> der Öffnung (Runde 15).' }),
+    { kind: 'zu', dur: 2, title: 'Zuziehen', text: 'Ziehe fest – <b>das Loch geht zu</b>. Alle Haarknoten rutschen in die Mitte, so entsteht oben ein <b>Haarwirbel</b>.' },
+    { kind: 'zu', dur: 1.5, title: 'Knoten', text: 'Fädle ein paarmal hin und her durch die Perlen, dann <b>3 Knoten</b>. Schneide alle Schnurreste ab und stecke die Enden zwischen die Perlen.' },
+    { kind: 'end', dur: 2.5, title: 'Geschafft!', text: '🏆 <b>Dein Hochlandrind ist fertig!</b> Lege die Haare in Form und biege Hörner und Ohren vorsichtig zurecht. Wie soll es heißen?' },
+  ];
+  U.draw = (U, s, p) => {
+    if (s === 3) {
+      const bob = Math.sin(p * Math.PI * 3) * 6 * (1 - p);
+      return `<g transform="translate(0 ${bob})">${cowSVG(new Set(COW_ORDER))}</g>`;
+    }
+    const t = s === 0 ? 0 : s === 1 ? ease(p) : 1, r = ringR(t), b = beadsAt(r);
+    let out = '<circle r="250" fill="#d9b48e" stroke="#b08f6e" stroke-width="4"/>';
+    const rnd = mulberry32(5);
+    for (let k = 0; k < 10; k++) {   // Haar-Ansätze
+      const a = (k * 36 + 90) * Math.PI / 180, r0 = r + 26, len = 120 + rnd() * 70;
+      out += `<path d="M${Math.cos(a) * r0},${Math.sin(a) * r0} L${Math.cos(a) * (r0 + len)},${Math.sin(a) * (r0 + len)}" stroke="${WOOL}" stroke-width="9" stroke-linecap="round"/>`;
+      for (let m = 1; m <= 2; m++) { const rr = r0 + len * m / 2.4; out += bead(Math.cos(a) * rr, Math.sin(a) * rr, k % 2 ? D : H, { scale: .7 }); }
+    }
+    b.forEach((q, i) => { out += bead(q[0], q[1], cols[i], { num: i + 1 }); });
+    if (s === 0) out += movesSVG(U.steps, 0, p);
+    else out += threadPath(pathAt(r), 'r', 1, true);
+    if (s === 2) out += knot(b[0][0] + 30, b[0][1] - 60, ease(p));
+    return out;
+  };
+  return U;
+}
+
+// ---------- Alle Abschnitte in Reihenfolge ----------
+function roundInfo(R) {
+  const nPlus = [...R.seq].filter(c => c === 'p').length, nMinus = [...R.seq].filter(c => c === 'm').length;
+  return (R.r === 1 ? '<span>Startkreis</span>' : `<span>alte Perlen: <b>${R.prev}</b></span><span>${R.seq.length} Maschen</span>`) +
+    `<span>danach: <b>${R.after}</b> Perlen</span><span>neue Perlen: <b>${R.newCount}</b></span>` +
+    `<span><i class="dot" style="background:${H}"></i>${R.hell} hell</span>` + (R.mittel ? `<span><i class="dot" style="background:${MB}"></i>${R.mittel} mittel</span>` : '') + (R.dunkel ? `<span><i class="dot" style="background:${D}"></i>${R.dunkel} dunkel</span>` : '') +
+    (nPlus ? `<span style="color:${PLUS}"><b>${nPlus}× Plus</b></span>` : '') + (nMinus ? `<span style="color:${MINUS}"><b>${nMinus}× Minus</b></span>` : '');
+}
+ROUNDS.forEach(R => Object.assign(R, { id: 'r' + R.r, group: 'Körper', nav: 'R ' + R.r, title: `Runde ${R.r} · ${R.area}`,
+  vb: [-R.W, -R.W, 2 * R.W, 2 * R.W], info: roundInfo(R), draw: R.r === 1 ? drawRound1 : drawRound }));
+(function () {
+  const HR = [3, 3, 2, 2, 2, 1, 1, 1];
+  const horn = ladderUnit({ id: 'horn', nav: 'Hörner', title: 'Hörner · × 2', cm: 40, times: 2, rows: HR, colors: [[CR]],
+    hint: 'Hörner, Ohren und Beine sind flach gefädelt – mit „Reihen kreuzen“.',
+    bend: (i, j) => { const th = i * .15, off = (j - (HR[i] - 1) / 2) * 66; return [440 * (1 - Math.cos(th)) + Math.cos(th) * off, -440 * Math.sin(th) + Math.sin(th) * off]; },
+    outro: [{ kind: 'bend', dur: 2, title: 'Biegen', text: 'Ziehe <b>eine Seite etwas fester</b>. Dann biegt sich das Horn wie eine Banane.' },
+      { title: 'Enden dranlassen', text: 'Schneide die Schnurenden <b>nicht</b> ab – damit nähst du das Horn später an.' },
+      { title: 'Zweites Horn', text: 'Mache das <b>zweite Horn</b> genauso.' }] });
+  const ohr = ladderUnit({ id: 'ohr', nav: 'Ohren', title: 'Ohren · × 2', cm: 30, times: 2, rows: [1, 2, 3], colors: [[D], [H, H], [H, D, H]],
+    outro: [{ title: 'Dreieck', text: 'Es entsteht ein kleines <b>Dreieck</b>. Die breite Seite (Reihe 3) kommt an den Kopf.' },
+      { title: 'Zweites Ohr', text: 'Mache das <b>zweite Ohr</b> genauso.' }] });
+  const bein = ladderUnit({ id: 'bein', nav: 'Beine', title: 'Beine · × 4', cm: 30, times: 4, rows: [3, 3, 3, 3, 2, 1], colors: [[D]], down: true,
+    hint: 'Reihe 1 ist oben – das breite Ende kommt an den Bauch.',
+    outro: [{ title: 'Rund ziehen', text: 'Wenn du fest ziehst, rollt sich das Bein etwas ein und wird <b>rund</b>. Unten wird es spitz.' },
+      { title: 'Anbau-Seite', text: 'Das breite Ende (<b>Reihe 1</b>) kommt an den Bauch.' },
+      { title: 'Noch 3 Beine', text: 'Mache insgesamt <b>4 Beine</b>.' }] });
+  const haare = haareUnit();
+  UNITS.push(haare);   // zuerst, damit das Material die Haar-Perlen mitzählen kann
+  const material = materialUnit();
+  UNITS.length = 0;
+  UNITS.push(material, ...ROUNDS, horn, ohr, maulUnit(), bein, schwanzUnit(), haare,
+    annaehenUnit(), fuellenUnit(), frisurUnit(), anbauUnit(), zumachenUnit());
+})();
+
 const svg = document.getElementById('svg'), scene = document.getElementById('scene');
 function draw() {
-  const R = ROUNDS[state.ri];
-  const W = R.W;
-  svg.setAttribute('viewBox', `${-W} ${-W} ${2 * W} ${2 * W}`);
-  scene.innerHTML = R.r === 1 ? drawRound1(R, state.s, state.p) : drawRound(R, state.s, state.p);
+  const U = UNITS[state.ri];
+  svg.setAttribute('viewBox', (typeof U.vb === 'function' ? U.vb(state.s) : U.vb).join(' '));
+  scene.innerHTML = U.draw(U, state.s, state.p);
 }
 
 // ---------- Oberfläche ----------
 const state = { ri: 0, s: 0, p: 0, playing: false, once: false, hold: 0 };
 const $ = id => document.getElementById(id);
 
-function buildRoundList() {
-  const box = $('rounds');
-  box.innerHTML = ROUNDS.map((R, i) =>
-    `<button class="area-${R.area}" data-i="${i}" title="Runde ${R.r} · ${R.area} · ${R.after} Perlen">` +
-    `<span>R ${R.r}</span><span class="bar" style="width:${(R.after / 20 * 100).toFixed(0)}%"></span><span class="cnt">${R.after}</span></button>`).join('');
-  box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) goRound(+b.dataset.i); });
+function buildNav() {
+  const groups = ['Vorbereitung', 'Körper', 'Kleinteile', 'Zusammenbau'];
+  $('nav').innerHTML = groups.map(g => {
+    const items = UNITS.map((U, i) => [U, i]).filter(([U]) => U.group === g);
+    if (g === 'Körper') {
+      return `<h3>${g}</h3><div class="rounds">` + items.map(([R, i]) =>
+        `<button class="area-${R.area}" data-i="${i}" title="Runde ${R.r} · ${R.area} · ${R.after} Perlen">` +
+        `<span>R ${R.r}</span><span class="bar" style="width:${(R.after / 20 * 100).toFixed(0)}%"></span><span class="cnt">${R.after}</span></button>`).join('') +
+        '</div><div class="areas"><i style="background:var(--H)"></i>Körper <i style="background:#9C5A2C"></i>Hals <i style="background:#6B3A1F"></i>Kopf<br>Unten fängst du an, oben hörst du auf.</div>';
+    }
+    return `<h3>${g}</h3><div class="units">` + items.map(([U, i]) => `<button data-i="${i}">${U.nav}</button>`).join('') + '</div>';
+  }).join('');
+  $('nav').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (b) goRound(+b.dataset.i); });
 }
 
 // Letzte Stelle merken (nur in diesem Browser, auf diesem Gerät)
 const SAVE_KEY = 'hochlandrind-stelle';
 function save() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ r: state.ri + 1, s: state.s + 1, speed })); } catch (e) { /* privates Fenster o. Ä. */ }
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ u: UNITS[state.ri].id, s: state.s + 1, speed })); } catch (e) { /* privates Fenster o. Ä. */ }
 }
 function load() {
   try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || null; } catch (e) { return null; }
@@ -465,14 +985,10 @@ function load() {
 
 function updateUI() {
   save();
-  const R = ROUNDS[state.ri], st = R.steps[state.s];
-  document.querySelectorAll('#rounds button').forEach((b, i) => b.classList.toggle('on', i === state.ri));
-  $('title').textContent = `Runde ${R.r} · ${R.area}`;
-  const nPlus = [...R.seq].filter(c => c === 'p').length, nMinus = [...R.seq].filter(c => c === 'm').length;
-  $('counts').innerHTML = (R.r === 1 ? '<span>Startkreis</span>' : `<span>alte Perlen: <b>${R.prev}</b></span><span>${R.seq.length} Maschen</span>`) +
-    `<span>danach: <b>${R.after}</b> Perlen</span><span>neue Perlen: <b>${R.newCount}</b></span>` +
-    `<span><i class="dot" style="background:${H}"></i>${R.hell} hell</span>` + (R.mittel ? `<span><i class="dot" style="background:${MB}"></i>${R.mittel} mittel</span>` : '') + (R.dunkel ? `<span><i class="dot" style="background:${D}"></i>${R.dunkel} dunkel</span>` : '') +
-    (nPlus ? `<span style="color:${PLUS}"><b>${nPlus}× Plus</b></span>` : '') + (nMinus ? `<span style="color:${MINUS}"><b>${nMinus}× Minus</b></span>` : '');
+  const R = UNITS[state.ri], st = R.steps[state.s];
+  document.querySelectorAll('#nav button[data-i]').forEach(b => b.classList.toggle('on', +b.dataset.i === state.ri));
+  $('title').textContent = R.title;
+  $('counts').innerHTML = R.info || '';
   $('seq').innerHTML = [...R.seq].map((c, j) => {
     const cls = [c, st.masche === j ? 'now' : '', st.masche > j || st.kind === 'done' || (st.masche == null && state.s > 0) ? 'done' : ''].join(' ');
     return `<span class="${cls}">${c === 'p' ? '+' : c === 'm' ? '−' : j + 1}</span>`;
@@ -487,21 +1003,21 @@ function updateUI() {
 }
 
 function goRound(i, atEnd = false) {
-  state.ri = Math.max(0, Math.min(ROUNDS.length - 1, i));
-  const n = ROUNDS[state.ri].steps.length;
+  state.ri = Math.max(0, Math.min(UNITS.length - 1, i));
+  const n = UNITS[state.ri].steps.length;
   state.s = atEnd ? n - 1 : 0; state.p = atEnd ? 1 : 0; state.hold = 0;
   updateUI(); draw();
 }
 function goStep(k, animate) {
-  const R = ROUNDS[state.ri];
-  if (k >= R.steps.length) { if (state.ri < ROUNDS.length - 1) { goRound(state.ri + 1); if (animate) state.once = !state.playing; } else { state.playing = false; updateUI(); } return; }
+  const R = UNITS[state.ri];
+  if (k >= R.steps.length) { if (state.ri < UNITS.length - 1) { goRound(state.ri + 1); if (animate) state.once = !state.playing; } else { state.playing = false; updateUI(); } return; }
   if (k < 0) { if (state.ri > 0) goRound(state.ri - 1, true); return; }
   state.s = k; state.p = 0; state.hold = 0;
   if (animate && !state.playing) state.once = true;
   updateUI(); draw();
 }
 function next() {
-  const R = ROUNDS[state.ri];
+  const R = UNITS[state.ri];
   if (state.p < 1 && !state.playing && !state.once) { state.once = true; return; }   // zuerst den aktuellen Schritt zeigen
   if (state.p < 1) { state.p = 1; draw(); return; }
   goStep(state.s + 1, true);
@@ -513,8 +1029,8 @@ function prev() {
 }
 function togglePlay() {
   state.playing = !state.playing; state.once = false;
-  const R = ROUNDS[state.ri];
-  if (state.playing && state.p >= 1 && state.s === R.steps.length - 1 && state.ri === ROUNDS.length - 1) goRound(0);
+  const R = UNITS[state.ri];
+  if (state.playing && state.p >= 1 && state.s === R.steps.length - 1 && state.ri === UNITS.length - 1) goRound(0);
   updateUI();
 }
 
@@ -539,7 +1055,7 @@ $('speed').onchange = e => { speed = +e.target.value; save(); };
 let last = performance.now();
 function tick(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
-  const R = ROUNDS[state.ri], st = R.steps[state.s];
+  const R = UNITS[state.ri], st = R.steps[state.s];
   if (state.playing || state.once) {
     if (state.p < 1) {
       state.p = Math.min(1, state.p + dt * speed / st.dur);
@@ -550,7 +1066,7 @@ function tick(now) {
       state.hold += dt * speed;
       const endOfRound = state.s === R.steps.length - 1;
       if (state.hold > (endOfRound ? 2.0 : 0.7)) {
-        if (endOfRound && state.ri === ROUNDS.length - 1) { state.playing = false; updateUI(); }
+        if (endOfRound && state.ri === UNITS.length - 1) { state.playing = false; updateUI(); }
         else goStep(state.s + 1, false);
       }
     }
@@ -569,7 +1085,7 @@ $('legend').innerHTML = [
   [ring2([0, 0], 36), 'durch diese Perle'], [`<circle r="30" fill="#f2e3cf"/>`, 'normale Masche'],
 ].map(([s, t]) => `<svg viewBox="-50 -50 100 100">${s}</svg><span>${t}</span>`).join('');
 
-buildRoundList();
+buildNav();
 
 // QR-Code für das Handy: die Netzwerk-Adresse kommt vom Server (server.js)
 async function showQR() {
@@ -605,13 +1121,16 @@ $('bInstall').onclick = async () => {
   await installEvent.userChoice;
   installEvent = null; $('bInstall').hidden = true;
 };
-// Startstelle: aus der Adresse (z. B. index.html#r=7&s=4&p=0.5), sonst die gemerkte Stelle.
+// Startstelle: aus der Adresse (z. B. index.html#r=7&s=4&p=0.5 oder #u=horn), sonst die gemerkte Stelle.
 // Ein gemerkter Schritt wird fertig gezeigt (p = 1), damit man sieht, wo man war.
 const hp = new URLSearchParams(location.hash.slice(1)), saved = load();
-const start = hp.has('r') ? { r: +hp.get('r'), s: +hp.get('s') || 0, p: +(hp.get('p') ?? 1) } : saved ? { r: saved.r, s: saved.s, p: 1 } : { r: 1, s: 0, p: 0 };
+// Abschnitt per id (#u=horn) oder Körper-Runde (#r=7); ältere Speicherstände kennen nur die Runde
+const idOf = o => o.u || (o.r ? 'r' + o.r : null);
+const start = (hp.has('r') || hp.has('u')) ? { u: idOf({ u: hp.get('u'), r: hp.get('r') }), s: +hp.get('s') || 0, p: +(hp.get('p') ?? 1) }
+  : saved ? { u: idOf(saved), s: saved.s, p: 1 } : { u: 'material', s: 0, p: 0 };
 if (saved && [0.5, 1, 2].includes(saved.speed)) { speed = saved.speed; $('speed').value = String(speed); }
-goRound(Math.max(0, Math.min(ROUNDS.length - 1, (start.r || 1) - 1)));
-if (start.s > 0) { state.s = Math.min(start.s - 1, ROUNDS[state.ri].steps.length - 1); state.p = start.p; updateUI(); draw(); }
+goRound(Math.max(0, UNITS.findIndex(U => U.id === start.u)));
+if (start.s > 0) { state.s = Math.min(start.s - 1, UNITS[state.ri].steps.length - 1); state.p = start.p; updateUI(); draw(); }
 requestAnimationFrame(tick);
 </script>
 </body>
